@@ -1,0 +1,20 @@
+<!-- TODO: Implementar ficha de juego (extends base.html) -->
+<!-- Variables: game, reviews, avg_rating, review_count, user_review, user_library_entry -->
+
+<!-- Zona superior: thumbnail, título, tabla datos (género, plataforma, developer, publisher, release_date) -->
+<!-- Descripción larga (game.description or game.short_description) -->
+<!-- Enlace "Jugar" (game.game_url) -->
+<!-- Screenshots gallery (game.screenshots — lista de URLs JSON) -->
+<!-- Requisitos del sistema: tabla con req_os, req_processor, req_memory, req_graphics, req_storage -->
+<!-- Timestamp: "Actualizado: DD/MM/YYYY" (game.cached_at) -->
+
+<!-- Zona biblioteca (solo si logueado): -->
+<!--   Si ya en biblioteca: select cambiar status + botón quitar -->
+<!--   Si no: botón "Añadir a mi biblioteca" -->
+<!--   Formularios con CSRF token -->
+
+<!-- Zona reseñas: -->
+<!--   Encabezado con nota media y conteo -->
+<!--   Formulario nueva reseña (si logueado y sin reseña): select rating 1-5 + textarea 10-1000 chars -->
+<!--   Listado de reseñas: username, rating, texto, fecha -->
+<!--   Botones editar/eliminar (autor) y eliminar (admin) con CSRF -->
