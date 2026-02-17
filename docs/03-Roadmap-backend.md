@@ -2,7 +2,7 @@
 
 > **Documentación relacionada:** [Arquitectura](01-Arquitectura.md) · [Estructura y archivos](02-Estructura-y-archivos.md) · [Roadmap Frontend](04-Roadmap-frontend.md) · [Memoria y defensa](05-Memoria-y-defensa.md)
 
-> El backend se hace completo primero. El frontend empieza cuando el backend esté terminado y probado. Para probar las rutas durante el desarrollo, usas templates mínimos (HTML sin estilos, solo datos) que luego tu compi reemplazará con la maquetación definitiva.
+> El backend se hace completo primero. El frontend empieza cuando el backend esté terminado y probado. Para probar las rutas durante el desarrollo, se usan templates mínimos (HTML sin estilos, solo datos) que luego Pablo Pérez reemplazará con la maquetación definitiva.
 
 ---
 
@@ -123,4 +123,4 @@
 | 6 | Docker limpio | Probar `docker-compose down -v` + `docker-compose up --build` + ejecutar seed → todo funciona desde cero |
 | 7 | Seed idempotente | Verificar que ejecutar seed_all.py dos veces no duplica datos |
 
-**Checkpoint final backend:** La app funciona completa con templates mínimos feos pero funcionales. Todos los flujos están probados. Docker arranca limpio. Seed llena la BD correctamente. CSRF activo. Paginación funcional. Listo para que tu compi ponga los templates bonitos encima.
+**Checkpoint final backend:** La app funciona completa con templates mínimos feos pero funcionales. Todos los flujos están probados. Docker arranca limpio. Seed llena la BD correctamente. CSRF activo. Paginación funcional. Listo para que Pablo Pérez ponga los templates bonitos encima.

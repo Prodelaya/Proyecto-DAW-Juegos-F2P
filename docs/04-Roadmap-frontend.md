@@ -2,7 +2,7 @@
 
 > **Documentación relacionada:** [Arquitectura](01-Arquitectura.md) · [Estructura y archivos](02-Estructura-y-archivos.md) · [Roadmap Backend](03-Roadmap-backend.md) · [Memoria y defensa](05-Memoria-y-defensa.md)
 
-> Empieza cuando el backend esté terminado (Fase 7 completada). Todos los templates mínimos ya existen con las variables Jinja2 correctas. Su trabajo es reemplazar cada template con la versión maquetada, sin tocar Python.
+> Empieza cuando el backend esté terminado (Fase 7 completada). Todos los templates mínimos ya existen con las variables Jinja2 correctas. El trabajo de Pablo Pérez es reemplazar cada template con la versión maquetada, sin tocar Python.
 
 ---
 
@@ -86,9 +86,9 @@
 
 ## CALENDARIO CONJUNTO
 
-> Backend primero (tú), frontend después (tu compi). No trabajan en paralelo en el código, pero tu compi puede ir preparando wireframes, paleta de colores y estructura CSS mientras tú haces el backend.
+> Backend primero (Pablo Laya), frontend después (Pablo Pérez). No trabajan en paralelo en el código, pero Pablo Pérez puede ir preparando wireframes, paleta de colores y estructura CSS mientras Pablo Laya hace el backend.
 
-| Semana | Tú (Backend) | Tu compi (mientras tanto) |
+| Semana | Pablo Laya (Backend) | Pablo Pérez (mientras tanto) |
 |--------|-------------|--------------------------
 | **Sem 1** | Fase 1 (cimientos + Docker) + Fase 2 (modelos) | Preparar wireframes en papel/Figma de todas las pantallas. Definir paleta de colores y estilo visual |
 | **Sem 2** | Fase 3 (seed completo) + Fase 4 (decorador + rutas públicas) | Diseñar la estructura de cada template: qué va en cada zona, qué componentes se reutilizan. Puede ir creando styles.css base |
@@ -101,7 +101,7 @@
 
 ## MOMENTO DE CONEXIÓN CLAVE
 
-**Al terminar tu Fase 7**, le entregas a tu compi:
+**Al terminar la Fase 7**, Pablo Laya le entrega a Pablo Pérez:
 
 1. **El repo funcionando** con docker-compose up + seed
 2. **Un documento de "contrato de variables"**: por cada template, qué variables Jinja2 recibe, su tipo y un ejemplo. Así:
@@ -131,4 +131,4 @@ detail.html recibe:
   - user_library_entry → objeto UserLibrary o None (si el usuario tiene el juego en biblioteca)
 ```
 
-Con eso tu compi puede reemplazar cada template mínimo por la versión maquetada sin preguntarte nada.
+Con eso Pablo Pérez puede reemplazar cada template mínimo por la versión maquetada sin preguntar nada.
