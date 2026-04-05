@@ -18,7 +18,7 @@
 | 4 | `app/config.py` | Clase Config leyendo cada variable del .env | Base para todo |
 | 5 | `app/extensions.py` | Instanciar db, login_manager, bcrypt, csrf. Dejar preparado `user_loader` con import diferido del modelo User para evitar ciclos | Los modelos y rutas lo necesitan |
 | 6 | `app/__init__.py` | create_app() que carga config, inicializa extensiones. Sin rutas ni modelos aún. Solo devuelve "Hello World" en ruta / temporal | La app debe arrancar vacía |
-| 7 | `Dockerfile` | FROM python:3.11-slim, WORKDIR, COPY requirements, pip install, COPY app, CMD flask run --host=0.0.0.0 | Contenerizar |
+| 7 | `Dockerfile` | FROM python:3.11-slim, WORKDIR, COPY requirements, pip install, COPY `app/`, COPY `seeds/` y copiar también los archivos raíz necesarios para arrancar la app y ejecutar seeds dentro del contenedor, CMD flask run --host=0.0.0.0 | Contenerizar |
 | 8 | `docker-compose.yml` | Servicio web (build ., puertos 5000:5000, env_file, depends_on db), Servicio db (postgres:15, volumen persistente, credenciales) | Levantar todo junto |
 | 9 | `README.md` | Instrucciones básicas: clonar, copiar .env.example a .env, rellenar, docker-compose up | Documentar desde ya |
 
@@ -33,13 +33,26 @@
 | Orden | Archivo | Qué hacer | Por qué este orden |
 |-------|---------|-----------|-------------------|
 | 1 | `app/models/__init__.py` | Importar User, Game, Review, UserLibrary | Para que Flask los descubra |
-| 2 | `app/models/user.py` | Modelo User: id, username (unique, 3–30 chars), email (unique), password_hash, is_admin (Boolean, default=False), created_at. Métodos: set_password(pw), check_password(pw). Propiedades Flask-Login | Independiente, sin FK |
-| 3 | `app/models/game.py` | Modelo Game: id, api_id (unique), title, thumbnail, genre, platform, short_description, description, developer, publisher, release_date, game_url, freetogame_profile_url, status, req_os, req_processor, req_memory, req_graphics, req_storage, screenshots (JSON), cached_at | Independiente, sin FK |
-| 4 | `app/models/review.py` | Modelo Review: id, user_id (FK), game_id (FK), rating (1-5), text (10–1000 chars), created_at, updated_at. UniqueConstraint(user_id, game_id). Relaciones backref a user y game | Depende de User y Game |
-| 5 | `app/models/library.py` | Modelo UserLibrary: id, user_id (FK), game_id (FK), status (String, validado contra lista), created_at. UniqueConstraint(user_id, game_id). Relaciones backref | Depende de User y Game |
+| 2 | `app/models/user.py` | Modelo User: id, username (unique, 3–30 chars, solo letras/números/`_`), email (unique), password_hash, is_admin (Boolean, default=False), created_at UTC. Métodos: set_password(pw), check_password(pw), `__repr__`. Dejarlo listo para Flask-Login desde esta fase | Independiente, sin FK |
+| 3 | `app/models/game.py` | Modelo Game: id, api_id (unique), title, thumbnail, genre, platform, short_description, description (**obligatoria**), developer, publisher, release_date, game_url, freetogame_profile_url, status, req_os, req_processor, req_memory, req_graphics, req_storage, screenshots (JSON), cached_at UTC, `__repr__` | Independiente, sin FK |
+| 4 | `app/models/review.py` | Modelo Review: id, user_id (FK), game_id (FK), rating (1-5), text (**obligatorio**, 10–1000 chars), created_at UTC, updated_at UTC, `__repr__`. `UniqueConstraint(user_id, game_id)` y relaciones explícitas con `back_populates` | Depende de User y Game |
+| 5 | `app/models/library.py` | Modelo UserLibrary: id, user_id (FK), game_id (FK), status (String, validado contra `want_to_play`, `playing`, `played`), created_at UTC, `__repr__`. `UniqueConstraint(user_id, game_id)` y relaciones explícitas con `back_populates` | Depende de User y Game |
 | 6 | Actualizar `app/__init__.py` | Dentro de create_app: importar modelos, dentro de app.app_context() hacer db.create_all() | Crear tablas al arrancar |
 
+**Decisiones de diseño cerradas para esta fase:**
+- Este change incluye persistencia **y validaciones esenciales en modelos**, manteniendo un equilibrio entre simplicidad académica y robustez razonable.
+- Validaciones clave duplicadas deliberadamente: en rutas/forms para UX y en modelos para integridad del dominio.
+- `Game.description` se modela como obligatoria porque el flujo oficial de seed persistirá juegos con detalle completo.
+- `UserLibrary.status` se almacena como `String` con validación manual; no se usará `Enum` en este proyecto.
+- Las relaciones entre modelos se implementarán con `back_populates`, no con `backref`.
+- La reseña de un usuario sobre un juego es única pero **editable** en fases posteriores.
+
 **Checkpoint:** Reiniciar containers. Entrar a PostgreSQL y verificar que existen las 4 tablas con sus columnas y constraints.
+
+**Done de la fase:**
+- `db.create_all()` ejecuta sin errores.
+- Existen las 4 tablas esperadas.
+- Se verifica manualmente en PostgreSQL el esquema básico: columnas, FKs, UNIQUE y nullability relevante.
 
 ---
 
@@ -53,7 +66,7 @@
 | 2 | `seeds/seed_games.py` | Función que llama al servicio, recorre resultados, INSERT o UPDATE cada juego en BD. Detecta duplicados por api_id. Guarda también datos detallados (status, screenshots, requisitos) y actualiza cached_at | Depende del servicio y modelo Game |
 | 3 | `seeds/seed_users.py` | Función que crea 1 admin (datos del .env, is_admin=True) + 5 usuarios demo con passwords hasheadas. Verifica si ya existen antes de crear | Depende del modelo User |
 | 4 | `seeds/seed_reviews.py` | Función que: selecciona 20-30 juegos de la BD, por cada usuario demo le asigna reseñas a 8-15 juegos aleatorios, rating con distribución realista, texto aleatorio de un array de 15-20 frases, fecha aleatoria en los últimos 30 días. Respeta constraint unique | Depende de que haya juegos y usuarios |
-| 5 | `seeds/seed_all.py` | Script ejecutable que crea app context, llama seed_games, seed_users, seed_reviews en orden. Print del progreso y contadores finales ("400 juegos, 6 usuarios, 72 reseñas") | Orquesta todo |
+| 5 | `seeds/seed_all.py` | Script ejecutable que crea app context, llama seed_games, seed_users y seed_reviews en orden. Cuando exista `seed_library.py`, este orquestador se actualiza para incluir también las entradas de biblioteca demo. Print del progreso y contadores finales | Orquesta todo |
 
 **Checkpoint:** Ejecutar `python seeds/seed_all.py`. Verificar en PostgreSQL: ~400 juegos, 6 usuarios (1 admin), ~50-80 reseñas con datos variados.
 
@@ -101,12 +114,13 @@
 | 2 | `app/routes/reviews.py` | Blueprint reviews_bp. POST crear: valida (rating 1-5, texto 10-1000 chars), comprueba unique, crea Review, redirect a ficha. GET+POST editar: comprueba autoría, muestra form pre-rellenado, actualiza. POST eliminar: comprueba autoría OR is_admin, elimina, redirect | CRUD principal |
 | 3 | Template mínimo my_library.html | Lista de juegos con forms de cambiar estado y quitar | Para probar |
 | 4 | `app/routes/library.py` | Blueprint library_bp. GET mi-biblioteca: query con filtro de status. POST agregar: comprueba unique. POST cambiar estado (validado contra lista). POST quitar | Segundo CRUD |
-| 5 | `seeds/seed_library.py` (opcional, recomendable) | Crear algunas entradas de biblioteca para usuarios demo con estados variados (`want_to_play`, `playing`, `played`) respetando unique(user_id, game_id) | Mejora la demo y permite probar perfil/biblioteca con datos iniciales |
+| 5 | `seeds/seed_library.py` | Crear algunas entradas de biblioteca para usuarios demo con estados variados (`want_to_play`, `playing`, `played`) respetando unique(user_id, game_id) | Mejora la demo y permite probar perfil/biblioteca con datos iniciales |
 | 6 | Template mínimo profile/index.html | Datos del usuario + contadores | Para probar |
 | 7 | `app/routes/profile.py` | Blueprint profile_bp. GET /perfil: datos del usuario, counts, últimas reseñas | Depende de reviews y library |
 | 8 | Template mínimo admin/reviews.html | Tabla de reseñas con botón eliminar + botón "Actualizar catálogo" | Para probar |
 | 9 | `app/routes/admin.py` | Blueprint admin_bp. GET /admin/resenas con @admin_required: lista todas las reseñas. POST eliminar con @admin_required. POST /admin/actualizar-juegos: re-ejecuta seed_games con rate-limit de 30s (verifica cached_at en servidor) | Depende de decorators.py y seeds/seed_games.py |
-| 10 | Actualizar `__init__.py` | Registrar blueprints: reviews, library, profile, admin | Conectar todo |
+| 10 | `seeds/seed_all.py` | Actualizar el orquestador para llamar también a `seed_library` después de `seed_reviews`, manteniendo idempotencia y contadores claros | Consolidar el seed general de la demo |
+| 11 | Actualizar `__init__.py` | Registrar blueprints: reviews, library, profile, admin | Conectar todo |
 
 **Checkpoint:** Flujo completo: login → ir a juego → añadir a biblioteca → escribir reseña → editarla → eliminarla → ver perfil → login como admin → panel admin → eliminar reseña de otro usuario → actualizar catálogo con cooldown.
 

@@ -69,7 +69,7 @@
 2. Paso 1: llama a la API FreeToGame y cachea los ~400 juegos en la tabla `games`
 3. Paso 2: crea usuarios demo (5 normales + 1 admin) con contraseñas hasheadas
 4. Paso 3: genera ~50-80 reseñas realistas repartidas entre usuarios demo y juegos populares
-5. Paso 4 (opcional): puede crear algunas entradas de biblioteca para los usuarios demo si se quiere mejorar la demo visual de perfil y biblioteca
+5. Paso 4: crea algunas entradas de biblioteca para los usuarios demo con estados variados para reforzar la demo de perfil y biblioteca
 6. A partir de ahí, la app tiene datos para funcionar y verse completa
 
 ---

@@ -38,7 +38,7 @@ docker-compose exec web python seeds/seed_all.py
 
 ## Notas
 
-- El seed crea juegos, usuarios demo, reseñas de ejemplo y puede ampliarse con entradas de biblioteca para mejorar la demo.
+- El seed general del proyecto está pensado para crear juegos, usuarios demo, reseñas de ejemplo y entradas de biblioteca para reforzar la demo.
 - Las credenciales del administrador se leen desde el archivo `.env`.
 - Todas las rutas que modifican datos usan protección CSRF.
 

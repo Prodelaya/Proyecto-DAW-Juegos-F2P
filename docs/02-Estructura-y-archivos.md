@@ -82,7 +82,8 @@ f2p-catalog/
 │   ├── seed_all.py
 │   ├── seed_games.py
 │   ├── seed_users.py
-│   └── seed_reviews.py
+│   ├── seed_reviews.py
+│   └── seed_library.py
 │
 └── docs/
     ├── 01-Arquitectura.md
@@ -101,7 +102,7 @@ f2p-catalog/
 | Archivo | Qué es | Qué contiene | Para qué sirve |
 |---------|--------|-------------|----------------|
 | `docker-compose.yml` | Configuración de Docker | Define 2 servicios: la app Flask y PostgreSQL. Puertos, volúmenes, variables de entorno | Levantar todo el proyecto con un solo comando |
-| `Dockerfile` | Instrucciones de imagen Docker | Base Python, instalación de dependencias, copia del código, comando de arranque | Construir el contenedor de la app Flask |
+| `Dockerfile` | Instrucciones de imagen Docker | Base Python, instalación de dependencias, copia de `app/`, `seeds/` y archivos raíz necesarios, comando de arranque | Construir el contenedor de la app Flask y permitir ejecutar seeds dentro del contenedor |
 | `.env.example` | Plantilla de variables de entorno | DATABASE_URL, SECRET_KEY, FLASK_ENV, FREETOGAME_API_URL, ADMIN_EMAIL, ADMIN_PASSWORD | Que cualquiera sepa qué variables configurar sin ver las reales |
 | `.gitignore` | Exclusiones de Git | .env, __pycache__, .venv, node_modules, *.pyc | No subir archivos sensibles ni basura al repositorio |
 | `README.md` | Documentación del repo | Descripción del proyecto, instrucciones de instalación, uso, tecnologías | Primera impresión del proyecto, instrucciones rápidas |
@@ -148,26 +149,28 @@ Cada archivo define una tabla de la BD. Todos importan `db` de `extensions.py`.
 - **Para qué sirve:** Que al hacer `from app.models import User, Game, Review, UserLibrary` funcione.
 
 #### models/user.py — Tabla de usuarios
-- **Qué contiene:** Clase `User` con campos: id, username (3–30 chars, alfanumérico + guiones bajos), email (formato válido), password_hash, is_admin (Boolean, default False), created_at. Métodos para hashear y verificar contraseña. Integración con Flask-Login (is_authenticated, get_id, etc.). Relaciones: `reviews` (1:N con Review), `library_entries` (1:N con UserLibrary).
+- **Qué contiene:** Clase `User` con campos: id, username (3–30 chars, solo letras, números y guion bajo), email (formato válido), password_hash, is_admin (Boolean, default False), created_at en UTC. Métodos para hashear y verificar contraseña, validaciones esenciales del modelo y `__repr__` útil. Integración con Flask-Login desde esta fase (is_authenticated, get_id, etc.). Relaciones explícitas con `back_populates`: `reviews` (1:N con Review), `library_entries` (1:N con UserLibrary).
 - **Para qué sirve:** Registrar, autenticar y gestionar usuarios, incluyendo el rol admin.
 - **Depende de:** `extensions.py` (db, bcrypt).
 
 #### models/game.py — Tabla de juegos (caché de la API)
 - **Qué contiene:** Clase `Game` con campos:
   - **Datos básicos** (del endpoint `/games`): id, api_id (unique), title, thumbnail (URL imagen portada), genre, platform, short_description, developer, publisher, release_date, game_url, freetogame_profile_url
-  - **Datos detallados** (del endpoint `/game?id`): status (String, ej: "Live"), description (Text, descripción larga), req_os, req_processor, req_memory, req_graphics, req_storage (5 campos String para requisitos del sistema), screenshots (JSON, lista de URLs de imágenes)
-  - **Metadatos**: cached_at (timestamp de cuándo se cacheó/actualizó el juego)
-  - **Relaciones**: `reviews` (1:N con Review), `library_entries` (1:N con UserLibrary)
+  - **Datos detallados** (del endpoint `/game?id`): status (String, ej: "Live"), description (Text, descripción larga y **obligatoria**), req_os, req_processor, req_memory, req_graphics, req_storage (5 campos String para requisitos del sistema), screenshots (JSON, lista de URLs de imágenes)
+  - **Metadatos**: cached_at (timestamp UTC de cuándo se cacheó/actualizó el juego)
+  - **Relaciones**: `reviews` (1:N con Review), `library_entries` (1:N con UserLibrary), definidas con `back_populates`
+- **Decisión de modelado:** El flujo oficial de seed persiste juegos con detalle completo, por eso `description` no se considera opcional en el modelo.
 - **Para qué sirve:** Almacenar localmente TODA la información de cada juego (lista + detalle). Se llena con el seed inicial y puede actualizarse manualmente desde el panel admin.
 - **Depende de:** `extensions.py` (db).
 
 #### models/review.py — Tabla de reseñas
-- **Qué contiene:** Clase `Review` con campos: id, user_id (FK→users), game_id (FK→games), rating (Integer, 1-5), text (String, 10–1000 caracteres), created_at, updated_at. Constraint UNIQUE en (user_id, game_id) para que un usuario solo pueda escribir una reseña por juego. Relaciones: `user` (N:1 con User), `game` (N:1 con Game).
-- **Para qué sirve:** Almacenar las valoraciones y textos de reseña.
+- **Qué contiene:** Clase `Review` con campos: id, user_id (FK→users), game_id (FK→games), rating (Integer, 1-5), text (String/Text, 10–1000 caracteres y **obligatorio**), created_at UTC, updated_at UTC. Constraint UNIQUE en (user_id, game_id) para que un usuario solo pueda escribir una reseña por juego. Relaciones explícitas con `back_populates`: `user` (N:1 con User), `game` (N:1 con Game).
+- **Para qué sirve:** Almacenar las valoraciones y textos de reseña. La reseña es única por usuario+juego, pero el producto contempla edición posterior en fases siguientes.
 - **Depende de:** `extensions.py` (db), `user.py`, `game.py` (claves foráneas).
 
 #### models/library.py — Tabla de biblioteca personal
-- **Qué contiene:** Clase `UserLibrary` con campos: id, user_id (FK→users), game_id (FK→games), status (String, uno de: 'want_to_play', 'playing', 'played'), created_at. Constraint UNIQUE en (user_id, game_id). Relaciones: `user` (N:1), `game` (N:1).
+- **Qué contiene:** Clase `UserLibrary` con campos: id, user_id (FK→users), game_id (FK→games), status (String, uno de: 'want_to_play', 'playing', 'played'), created_at UTC. Constraint UNIQUE en (user_id, game_id). Relaciones explícitas con `back_populates`: `user` (N:1), `game` (N:1).
+- **Decisión de modelado:** Los estados se guardan como `String` con validación manual en rutas/forms y en el modelo. Se reconocen solo esos tres estados para el producto actual, aunque el diseño podría ampliarse en el futuro.
 - **Para qué sirve:** Que cada usuario pueda guardar juegos y marcar su estado.
 - **Depende de:** `extensions.py` (db), `user.py`, `game.py` (claves foráneas).
 
@@ -189,7 +192,7 @@ Cada archivo es un Blueprint de Flask que agrupa rutas relacionadas. Todos se re
 - **Qué contiene:** Blueprint `auth_bp`. Rutas:
   - GET+POST `/registro`: muestra formulario / crea usuario con password hasheada. Valida que email y username no existan ya (y cumplen reglas de longitud/formato). Redirige a login tras registro exitoso.
   - GET+POST `/login`: muestra formulario / verifica password con bcrypt, crea sesión con Flask-Login. Redirige a home.
-  - GET `/logout`: destruye sesión, redirige a home.
+  - POST `/logout`: destruye sesión, redirige a home. Al ser una acción que cambia estado de sesión, debe protegerse con CSRF.
 - **Depende de:** `models/user.py`, `extensions.py` (bcrypt, login_manager).
 
 #### routes/games.py — Catálogo y ficha de juego
@@ -246,10 +249,10 @@ Cada archivo es un Blueprint de Flask que agrupa rutas relacionadas. Todos se re
 Los scripts de seed llenan la BD con datos iniciales. Se ejecutan una vez tras levantar la app por primera vez (o manualmente desde el panel admin para actualizar juegos).
 
 #### seeds/seed_all.py — Orquestador
-- **Qué es:** Script principal que ejecuta los 3 seeds en orden.
-- **Qué contiene:** Importa la app Flask (para tener el contexto de BD), luego ejecuta seed_games, seed_users y seed_reviews en ese orden. Imprime por consola el progreso ("Cacheando juegos...", "Creando usuarios...", "Generando reseñas...").
+- **Qué es:** Script principal que ejecuta los seeds del proyecto en orden.
+- **Qué contiene:** Importa la app Flask (para tener el contexto de BD), luego ejecuta seed_games, seed_users, seed_reviews y seed_library en ese orden cuando ese último ya exista en la fase correspondiente. Imprime por consola el progreso ("Cacheando juegos...", "Creando usuarios...", "Generando reseñas...", "Generando biblioteca demo...").
 - **Para qué sirve:** Un solo comando para llenar toda la BD: `python seeds/seed_all.py`.
-- **Depende de:** `app/__init__.py` (contexto Flask), los otros 3 seeds.
+- **Depende de:** `app/__init__.py` (contexto Flask), los otros seeds.
 
 #### seeds/seed_games.py — Cachear juegos de la API
 - **Qué contiene:** Función que:
@@ -280,6 +283,11 @@ Los scripts de seed llenan la BD con datos iniciales. Se ejecutan una vez tras l
   - Respeta el constraint unique de user_id + game_id (un usuario no repite juego).
 - **Para qué sirve:** Que la web se vea viva en la demo. El profesor verá fichas de juegos con notas medias, reseñas de distintos usuarios y contenido variado.
 - **Depende de:** `models/review.py`, `models/user.py`, `models/game.py`.
+
+#### seeds/seed_library.py — Generar biblioteca demo
+- **Qué contiene:** Función que crea entradas de biblioteca para usuarios demo con estados variados (`want_to_play`, `playing`, `played`), respetando la unicidad `(user_id, game_id)` y evitando duplicados al reejecutarse.
+- **Para qué sirve:** Mejorar la demo de perfil y biblioteca personal con datos iniciales realistas.
+- **Depende de:** `models/library.py`, `models/user.py`, `models/game.py`.
 
 ---
 
