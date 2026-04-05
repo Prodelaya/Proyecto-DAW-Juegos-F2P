@@ -2,7 +2,9 @@
 
 > **Documentación relacionada:** [Arquitectura](01-Arquitectura.md) · [Estructura y archivos](02-Estructura-y-archivos.md) · [Roadmap Backend](03-Roadmap-backend.md) · [Memoria y defensa](05-Memoria-y-defensa.md)
 
-> Empieza cuando el backend esté terminado (Fase 7 completada). Todos los templates mínimos ya existen con las variables Jinja2 correctas. El trabajo de Pablo Pérez es reemplazar cada template con la versión maquetada, sin tocar Python.
+> Empieza cuando el backend esté terminado (Fase 7 completada). Todos los templates mínimos ya existen con las variables Jinja2 correctas. El trabajo de Pablo Pérez es reemplazar cada template con una versión maquetada **sencilla**, apoyándose al máximo en Bootstrap y **sin tocar Python**.
+
+> **Criterio clave:** el frontend debe ser fácil de mantener para un compañero novato. Primero funcional, limpio y responsive. Los extras visuales o de JavaScript solo se hacen si sobra tiempo.
 
 ---
 
@@ -13,74 +15,76 @@
 | Orden | Archivo | Qué hacer |
 |-------|---------|-----------
 | 1 | `app/templates/base.html` | Reescribir el template mínimo: HTML5 completo, Bootstrap CDN en head, bloque title, bloque content, scripts al final. Include de los partials |
-| 2 | `app/templates/partials/navbar.html` | Navbar Bootstrap responsive: logo, enlaces públicos (Inicio, Catálogo), zona auth condicional (Login/Registro si anónimo; Mi Biblioteca, Mi Perfil, Cerrar Sesión si logueado; + Panel Admin si admin). Hamburger menu en móvil |
+| 2 | `app/templates/partials/navbar.html` | Navbar Bootstrap responsive: logo, enlaces públicos (Inicio, Catálogo), zona auth condicional (Login/Registro si anónimo; Mi Biblioteca, Mi Perfil, formulario POST de Cerrar Sesión si logueado; + Panel Admin si admin). Hamburger menu en móvil |
 | 3 | `app/templates/partials/footer.html` | Footer: créditos, enlace FreeToGame API, año |
 | 4 | `app/templates/partials/flash_messages.html` | Alertas Bootstrap con dismiss para cada categoría de flash |
 | 5 | `app/templates/partials/pagination.html` | Controles de paginación Bootstrap reutilizables |
-| 6 | `app/static/css/styles.css` | Paleta de colores gaming/oscuro, variables CSS, estilos base de cards, badges, estrellas de rating, ajustes sobre Bootstrap |
+| 6 | `app/static/css/styles.css` | CSS mínimo: colores base, separación entre bloques, tamaño de imágenes y pequeños ajustes sobre Bootstrap. Evitar reinventar componentes |
 
-**Checkpoint:** Todas las páginas ya tienen navbar, footer y estilos base. La app se ve coherente.
+**Checkpoint:** Todas las páginas ya tienen navbar, footer y estilos base. La app se ve coherente sin depender de CSS complejo.
 
 ---
 
-## Fase F2: Home y componente card (Días 3-5)
+## Fase F2: Home y catálogo básico (Días 3-6)
 
 | Orden | Archivo | Qué hacer |
 |-------|---------|-----------
-| 1 | `app/templates/partials/game_card.html` | Card Bootstrap: imagen (con placeholder si falla), título, badges de género y plataforma, nota media, enlace. Hover effect |
-| 2 | `app/templates/main/home.html` | Hero section (título, descripción, CTA al catálogo), grid de juegos destacados con game_card, diseño atractivo |
+| 1 | `app/templates/partials/game_card.html` | Card Bootstrap simple: imagen, título, badges de género y plataforma, nota media si existe y enlace a detalle |
+| 2 | `app/templates/main/home.html` | Cabecera simple con título, descripción corta y botón al catálogo. Debajo, grid de juegos destacados con `game_card` |
+| 3 | `app/templates/games/catalog.html` | Formulario de filtros sencillo arriba, grid responsive de cards, texto de resultados, paginación y mensaje si no hay resultados |
 
-**Checkpoint:** Home con aspecto profesional. Cards reutilizables.
+**Checkpoint:** Home y catálogo se ven ordenados y son fáciles de mantener. Cards reutilizables funcionando.
 
 ---
 
-## Fase F3: Catálogo y ficha (Días 5-8)
+## Fase F3: Ficha de juego (Días 6-8)
 
 | Orden | Archivo | Qué hacer |
 |-------|---------|-----------
-| 1 | `app/templates/games/catalog.html` | Zona de filtros (selects estilizados, buscador, selector de orden: A-Z / popularidad), grid responsive de cards, texto de resultados, controles de paginación, mensaje vacío |
-| 2 | `app/templates/games/detail.html` | Layout de ficha completo: portada (thumbnail grande), título, tabla de datos (developer, publisher, release_date, género, plataformas, status, enlace oficial), cached_at como "(Actualizado: DD/MM/YYYY)", descripción larga, tabla de requisitos del sistema (OS, procesador, memoria, gráficos, almacenamiento — condicional, no todos los juegos lo tienen), galería de screenshots (grid/carrusel), zona de biblioteca, zona de reseñas con estrellas visuales, formulario inline de reseña (con CSRF), listado de reseñas |
-| 3 | `app/static/js/main.js` | Confirm antes de eliminar, validación passwords coinciden en registro, posible sistema visual de estrellas clicables, cuenta atrás de 30s en botón "Actualizar catálogo" |
+| 1 | `app/templates/games/detail.html` | Layout claro y simple: portada, datos básicos (developer, publisher, fecha, género, plataforma, status, enlace oficial), descripción, requisitos si existen, screenshots en grid simple si existen, zona de biblioteca, formulario de reseña y listado de reseñas |
+| 2 | `app/static/js/main.js` | Solo JavaScript mínimo: confirm antes de eliminar y, como mucho, comprobación visual de passwords coinciden en registro |
 
-**Checkpoint:** Catálogo navegable con filtros y paginación. Ficha de juego completa y atractiva.
+**Checkpoint:** La ficha muestra toda la información importante sin componentes difíciles de mantener.
 
 ---
 
-## Fase F4: Auth y perfil (Días 8-10)
+## Fase F4: Auth, perfil y biblioteca (Días 8-11)
 
 | Orden | Archivo | Qué hacer |
 |-------|---------|-----------
 | 1 | `app/templates/auth/login.html` | Card centrada con formulario estilizado, validación HTML5, token CSRF |
-| 2 | `app/templates/auth/register.html` | Idem pero con más campos (username 3-30, password mín 8) |
+| 2 | `app/templates/auth/register.html` | Igual que login, con campos de registro y ayuda visual simple sobre las reglas básicas |
 | 3 | `app/templates/profile/index.html` | Card de perfil con contadores y lista de reseñas recientes |
+| 4 | `app/templates/library/my_library.html` | Lista o grid simple de juegos guardados, filtro por estado y controles inline para cambiar estado o quitar |
 
-**Checkpoint:** Flujo de auth visualmente pulido.
+**Checkpoint:** Login, registro, perfil y biblioteca están maquetados con Bootstrap de forma clara y sin lógica visual compleja.
 
 ---
 
-## Fase F5: Biblioteca, reseña y admin (Días 10-13)
+## Fase F5: Admin, errores y responsive (Días 11-14)
 
 | Orden | Archivo | Qué hacer |
 |-------|---------|-----------
-| 1 | `app/templates/library/my_library.html` | Filtro por pestañas/botones de estado, grid de juegos con controles inline |
-| 2 | `app/templates/reviews/form.html` | Formulario de edición con campos pre-rellenados, estrellas, textarea (10-1000 chars) |
-| 3 | `app/templates/admin/reviews.html` | Tabla/lista de moderación con botones eliminar estilizados. Botón "Actualizar catálogo" con cuenta atrás 30s y feedback visual |
-| 4 | `app/templates/errors/404.html` y `500.html` | Páginas de error con estilo acorde al resto |
+| 1 | `app/templates/reviews/form.html` | Formulario de edición con campos pre-rellenados, select o radios simples para rating y textarea |
+| 2 | `app/templates/admin/reviews.html` | Tabla/lista de moderación con botones claros. El botón "Actualizar catálogo" puede ser simple; la cuenta atrás visual es opcional |
+| 3 | `app/templates/errors/404.html` y `500.html` | Páginas de error con estilo acorde al resto |
+| 4 | Revisión responsive | Probar todas las páginas en móvil y corregir desbordes, columnas y navbar |
 
 **Checkpoint:** Todas las páginas maquetadas.
 
 ---
 
-## Fase F6: Responsive y pulido (Días 13-15)
+## Fase F6: Extras solo si sobra tiempo (Días 14-15)
 
 | Tarea | Detalle |
 |-------|---------
-| Responsive | Testear TODAS las páginas en móvil: catálogo (cards a 1 columna), ficha, filtros, formularios, navbar hamburger, paginación |
 | Estados vacíos | Mensajes amables: "Tu biblioteca está vacía", "No hay resultados para esta búsqueda", "Sé el primero en dejar una reseña" |
-| Consistencia | Mismos paddings, márgenes, colores, tipografía en todas las páginas |
-| Microinteracciones | Hover en cards, transiciones suaves, animación de estrellas, cuenta atrás en botón admin |
+| Consistencia | Mismos paddings, márgenes, colores y tipografía en todas las páginas |
+| Microinteracciones | Solo si todo lo demás ya está estable: hover suave en cards o pequeña mejora visual en botones |
 | Favicon + logo | Añadir en static/img/ |
-| Testing visual | Recorrer TODOS los flujos y verificar que nada se rompe visualmente |
+| Testing visual | Recorrer todos los flujos y verificar que nada se rompe visualmente |
+
+> **Importante:** Si falta tiempo, esta fase se puede recortar sin problema. Lo obligatorio es que el frontend sea claro, funcional y responsive.
 
 ---
 
@@ -90,11 +94,11 @@
 
 | Semana | Pablo Laya (Backend) | Pablo Pérez (mientras tanto) |
 |--------|-------------|--------------------------
-| **Sem 1** | Fase 1 (cimientos + Docker) + Fase 2 (modelos) | Preparar wireframes en papel/Figma de todas las pantallas. Definir paleta de colores y estilo visual |
-| **Sem 2** | Fase 3 (seed completo) + Fase 4 (decorador + rutas públicas) | Diseñar la estructura de cada template: qué va en cada zona, qué componentes se reutilizan. Puede ir creando styles.css base |
-| **Sem 3** | Fase 5 (auth) + Fase 6 (rutas privadas + admin) | Preparar presentación/Canva para la defensa. Estudiar Jinja2 básico ({% block %}, {{ var }}, {% for %}, {% if %}) |
-| **Sem 4** | Fase 7 (errores + pulido) → **ENTREGA BACKEND** | **Empieza frontend:** Fases F1-F3 (base, home, catálogo, ficha) |
-| **Sem 5** | Apoyo + revisión + testing conjunto | Fases F4-F6 (auth, biblioteca, admin, responsive, pulido) |
+| **Sem 1** | Fase 1 (cimientos + Docker) + Fase 2 (modelos) | Preparar wireframes sencillos en papel/Figma. Mirar ejemplos básicos de Bootstrap y entender cómo funciona un template Jinja2 |
+| **Sem 2** | Fase 3 (seed completo) + Fase 4 (decorador + rutas públicas) | Pensar la estructura de `base.html`, navbar, cards y formularios sin meterse aún en detalles visuales complejos |
+| **Sem 3** | Fase 5 (auth) + Fase 6 (rutas privadas + admin) | Estudiar Jinja2 básico (`{% block %}`, `{{ var }}`, `{% for %}`, `{% if %}`) y practicar con HTML simple |
+| **Sem 4** | Fase 7 (errores + pulido) → **ENTREGA BACKEND** | **Empieza frontend:** Fases F1-F2 (base, home y catálogo) |
+| **Sem 5** | Apoyo + revisión + testing conjunto | Fases F3-F5 (ficha, auth, biblioteca, admin, responsive) |
 | **Sem 6** | Testing final + Docker limpio + escritura memoria | Testing final + últimos ajustes + escritura memoria |
 
 ---
@@ -104,7 +108,7 @@
 **Al terminar la Fase 7**, Pablo Laya le entrega a Pablo Pérez:
 
 1. **El repo funcionando** con docker-compose up + seed
-2. **Un documento de "contrato de variables"**: por cada template, qué variables Jinja2 recibe, su tipo y un ejemplo. Así:
+2. **Un documento de "contrato de variables"**: por cada template, qué variables Jinja2 recibe, su tipo y un ejemplo. Esto es clave para que Pablo Pérez no tenga que adivinar nada ni tocar Python. Así:
 
 ```
 catalog.html recibe:
@@ -132,3 +136,14 @@ detail.html recibe:
 ```
 
 Con eso Pablo Pérez puede reemplazar cada template mínimo por la versión maquetada sin preguntar nada.
+
+---
+
+## PRINCIPIO DE TRABAJO PARA PABLO PEREZ
+
+1. No tocar rutas, modelos ni lógica Python.
+2. Si Bootstrap ya resuelve algo, usar Bootstrap y no inventar un componente nuevo.
+3. Evitar JavaScript salvo para cosas muy simples.
+4. Hacer primero que se vea bien en escritorio y después ajustar móvil.
+5. Priorizar páginas completas y limpias antes que detalles visuales avanzados.
+6. Si una mejora visual da problemas, se elimina. Mejor simple y estable que bonito y roto.

@@ -69,7 +69,8 @@
 2. Paso 1: llama a la API FreeToGame y cachea los ~400 juegos en la tabla `games`
 3. Paso 2: crea usuarios demo (5 normales + 1 admin) con contraseñas hasheadas
 4. Paso 3: genera ~50-80 reseñas realistas repartidas entre usuarios demo y juegos populares
-5. A partir de ahí, la app tiene datos para funcionar y verse completa
+5. Paso 4 (opcional): puede crear algunas entradas de biblioteca para los usuarios demo si se quiere mejorar la demo visual de perfil y biblioteca
+6. A partir de ahí, la app tiene datos para funcionar y verse completa
 
 ---
 
@@ -104,7 +105,7 @@ El catálogo muestra **20 juegos por página** con paginación server-side (Flas
 
 ### Protección CSRF
 
-Todos los formularios POST incluyen un **token CSRF** generado por Flask-WTF (`CSRFProtect`). Se inicializa en `extensions.py` y se inyecta en cada formulario con `{{ csrf_token() }}` o `{{ form.hidden_tag() }}`. Peticiones POST sin token válido devuelven 400 Bad Request.
+Todos los formularios POST incluyen un **token CSRF** generado por Flask-WTF (`CSRFProtect`). Se inicializa en `extensions.py` y se inyecta en cada formulario con `{{ csrf_token() }}` o `{{ form.hidden_tag() }}`. Esto incluye acciones que cambian estado como crear/editar/eliminar contenido o cerrar sesión. Peticiones POST sin token válido devuelven 400 Bad Request.
 
 ### Validaciones server-side
 
@@ -119,7 +120,7 @@ Todos los formularios POST incluyen un **token CSRF** generado por Flask-WTF (`C
 
 ### Rate-limit en actualización de catálogo
 
-La ruta `POST /admin/actualizar-juegos` tiene un **cooldown de 30 segundos**. El botón en el panel admin se desactiva tras pulsarlo y muestra una cuenta atrás visual (JS) antes de volver a estar disponible. En servidor se verifica el `cached_at` del último juego actualizado para rechazar peticiones demasiado frecuentes.
+La ruta `POST /admin/actualizar-juegos` tiene un **cooldown de 30 segundos**. En servidor se verifica el `cached_at` del último juego actualizado para rechazar peticiones demasiado frecuentes. En frontend se puede añadir una cuenta atrás visual, pero es una mejora opcional y no un requisito funcional.
 
 ### Contraseñas
 

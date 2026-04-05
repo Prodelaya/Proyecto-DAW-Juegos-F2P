@@ -52,5 +52,5 @@ El documento final debe seguir estrictamente esta estructura, según la guía of
 | 0:30-1:30 | **Diseño y UX:** Mostrar algunos wireframes iniciales y compararlos con el resultado visual final. Explicar la elección de la paleta oscura/gaming y el uso de Bootstrap + Jinja2. |
 | 1:30-2:30 | **Demo Navegación:** Recorrido por la web emulando a un usuario anónimo: buscar un juego, usar los filtros, ver una ficha detallada. Destacar el diseño *responsive* mostrando cómo se adapta a móvil. |
 | 2:30-3:30 | **Demo Seguridad y Usuarios:** Proceso de registro (explicando mitigación CSRF visual) y login exitoso. Añadir un juego a "Mi biblioteca" y dejar una reseña (validación visual del formulario). |
-| 3:30-4:15 | **Testing:** Mostrar un ejemplo de la tabla de casos de prueba manuales (ej. qué pasó al intentar introducir un texto malicioso y cómo se sanitizó). |
+| 3:30-4:15 | **Testing:** Mostrar un ejemplo de la tabla de casos de prueba manuales (ej. qué pasó al intentar enviar datos inválidos o contenido no esperado y cómo lo bloquean las validaciones server-side y el renderizado seguro de Jinja2). |
 | 4:15-5:00 | **Conclusión Personal:** Dificultad principal (ej. adaptar componentes de Bootstrap, herencia en Jinja2) e impresiones del trabajo en equipo. Despedida. |
