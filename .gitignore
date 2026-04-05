@@ -1,5 +1,6 @@
 # Environment
 .env
+instance/
 .venv/
 venv/
 env/
@@ -27,3 +28,6 @@ pgdata/
 
 # Node (por si acaso)
 node_modules/
+
+# Agent registry artifacts
+.atl/

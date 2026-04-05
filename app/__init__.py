@@ -1,16 +1,24 @@
-# TODO: Implementar Application Factory completo
-# Patrón: create_app() carga config, inicializa extensiones, registra blueprints y error handlers.
-# 1. Crear instancia Flask
-# 2. Cargar Config desde app.config
-# 3. Inicializar extensiones: db, login_manager, bcrypt, csrf
-# 4. Registrar blueprints vía register_routes(app)
-# 5. Registrar error handlers (404, 500) renderizando templates de errors/
-# 6. Crear tablas con db.create_all() dentro de app_context (sin migraciones — MVP)
-# Ver: docs/01-Arquitectura.md §7 (Mapa de dependencias)
+from pathlib import Path
 
 from flask import Flask
 
+from app.config import Config
+from app.extensions import bcrypt, csrf, db, login_manager
+
 
 def create_app():
-    # TODO: Implementar application factory
-    pass
+    app = Flask(__name__, instance_relative_config=True)
+    app.config.from_object(Config)
+
+    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+
+    db.init_app(app)
+    login_manager.init_app(app)
+    bcrypt.init_app(app)
+    csrf.init_app(app)
+
+    @app.get("/")
+    def hello_world():
+        return "Hello World"
+
+    return app

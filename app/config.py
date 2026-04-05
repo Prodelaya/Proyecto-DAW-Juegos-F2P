@@ -1,12 +1,33 @@
-# TODO: Implementar configuración centralizada
-# Lee variables de entorno desde .env usando python-dotenv.
-# Campos: SECRET_KEY, SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS (False),
-#          FREETOGAME_API_URL, ADMIN_EMAIL, ADMIN_PASSWORD
-# Ver: docs/02-Estructura-y-archivos.md (sección config.py)
+# Configuración centralizada de la aplicación.
+
+from __future__ import annotations
 
 import os
+from pathlib import Path
+
+from dotenv import load_dotenv
+
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+DEFAULT_SQLITE_PATH = BASE_DIR / "instance" / "f2p_catalog.db"
+
+load_dotenv(BASE_DIR / ".env")
 
 
 class Config:
-    # TODO: Definir variables de configuración desde os.getenv()
-    pass
+    FLASK_ENV = os.getenv("FLASK_ENV", "development")
+    DATABASE_URL = os.getenv("DATABASE_URL") or f"sqlite:///{DEFAULT_SQLITE_PATH}"
+    SQLALCHEMY_DATABASE_URI = DATABASE_URL
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    SECRET_KEY = os.getenv("SECRET_KEY") or (
+        "dev-secret-key-change-me" if FLASK_ENV == "development" else None
+    )
+
+    FREETOGAME_API_URL = os.getenv(
+        "FREETOGAME_API_URL", "https://www.freetogame.com/api"
+    )
+    ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@f2pcatalog.com")
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD") or (
+        "admin1234" if FLASK_ENV == "development" else None
+    )

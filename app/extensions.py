@@ -1,10 +1,24 @@
-# TODO: Instanciar extensiones Flask
-# Se crean aquí y se inicializan en create_app() para evitar importaciones circulares.
-# Extensiones: db (SQLAlchemy), login_manager (LoginManager), bcrypt (Bcrypt), csrf (CSRFProtect)
-# Configurar login_manager: login_view, login_message, login_message_category
-# Definir @login_manager.user_loader → carga User por ID
-# Ver: docs/01-Arquitectura.md §7
+from flask_bcrypt import Bcrypt
+from flask_login import LoginManager
+from flask_sqlalchemy import SQLAlchemy
+from flask_wtf import CSRFProtect
 
-# TODO: Crear instancias de extensiones
-# TODO: Configurar Flask-Login (login_view, mensajes)
-# TODO: Implementar user_loader callback
+
+db = SQLAlchemy()
+login_manager = LoginManager()
+bcrypt = Bcrypt()
+csrf = CSRFProtect()
+
+login_manager.login_view = "auth_bp.login"
+login_manager.login_message = "Tenés que iniciar sesión para acceder a esta página."
+login_manager.login_message_category = "warning"
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    from app.models.user import User
+
+    try:
+        return User.query.get(int(user_id))
+    except (TypeError, ValueError, AttributeError):
+        return None
