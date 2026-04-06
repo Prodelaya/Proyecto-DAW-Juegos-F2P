@@ -17,6 +17,11 @@ def create_app():
     bcrypt.init_app(app)
     csrf.init_app(app)
 
+    import app.models as models  # noqa: F401
+
+    with app.app_context():
+        db.create_all()
+
     @app.get("/")
     def hello_world():
         return "Hello World"

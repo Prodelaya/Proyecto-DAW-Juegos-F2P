@@ -1,14 +1,54 @@
-# TODO: Implementar modelo Review — Reseñas de usuarios sobre juegos
-# Campos: id (PK), user_id (FK → users.id), game_id (FK → games.id),
-#   rating (Integer, 1-5), text (String 1000, 10-1000 chars),
-#   created_at, updated_at (con onupdate)
-# Constraint: UNIQUE (user_id, game_id) — un usuario solo puede escribir una reseña por juego
-# Ver: docs/02-Estructura-y-archivos.md (sección models/review.py)
+from __future__ import annotations
+
+from datetime import datetime
+
+from sqlalchemy.orm import validates
+
+from app.extensions import db
 
 
-class Review:
-    __tablename__ = 'reviews'
-    # TODO: Definir columnas
-    # TODO: Definir UniqueConstraint (user_id, game_id)
-    # TODO: Implementar __repr__
-    pass
+class Review(db.Model):
+    __tablename__ = "reviews"
+    __table_args__ = (
+        db.UniqueConstraint("user_id", "game_id", name="uq_reviews_user_game"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
+    game_id = db.Column(db.Integer, db.ForeignKey("games.id"), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    text = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    updated_at = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
+
+    user = db.relationship("User", back_populates="reviews")
+    game = db.relationship("Game", back_populates="reviews")
+
+    @validates("rating")
+    def validate_rating(self, _key, rating: int) -> int:
+        if type(rating) is not int or not 1 <= rating <= 5:
+            raise ValueError("La valoración debe estar entre 1 y 5.")
+
+        return rating
+
+    @validates("text")
+    def validate_text(self, _key, text: str) -> str:
+        if not isinstance(text, str):
+            raise ValueError("La reseña debe ser un string.")
+
+        normalized_text = text.strip()
+        if not 10 <= len(normalized_text) <= 1000:
+            raise ValueError("La reseña debe tener entre 10 y 1000 caracteres.")
+
+        return normalized_text
+
+    def __repr__(self) -> str:
+        return (
+            f"<Review id={self.id} user_id={self.user_id} game_id={self.game_id} "
+            f"rating={self.rating}>"
+        )
