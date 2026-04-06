@@ -1,0 +1,32 @@
+schema: spec-driven
+
+context: |
+  Tech stack: Python 3.11, Flask, Flask-SQLAlchemy, Flask-Login, Flask-Bcrypt, Flask-WTF, PostgreSQL 15, Jinja2, Bootstrap, vanilla JS, Docker Compose.
+  Architecture: MVC with Flask Application Factory, shared extensions module, Flask Blueprints, server-rendered templates, seed scripts for data bootstrap.
+  Testing: No dedicated automated test framework or CI workflow detected yet.
+  Style: Root conventions documented in CLAUDE.md; no standalone linter/formatter config detected in the repository.
+
+rules:
+  proposal:
+    - Include rollback plan for risky changes
+    - Identify affected modules/packages
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Use RFC 2119 keywords (MUST, SHALL, SHOULD, MAY)
+  design:
+    - Include sequence diagrams for complex flows
+    - Document architecture decisions with rationale
+  tasks:
+    - Group tasks by phase (infrastructure, implementation, testing)
+    - Use hierarchical numbering (1.1, 1.2, etc.)
+    - Keep tasks small enough to complete in one session
+  apply:
+    - Follow existing code patterns and conventions
+    tdd: false
+    test_command: ""
+  verify:
+    test_command: ""
+    build_command: ""
+    coverage_threshold: 0
+  archive:
+    - Warn before merging destructive deltas (large removals)

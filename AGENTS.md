@@ -75,6 +75,7 @@ This file defines repo-level instructions for any coding agent working in this r
 - Do not run tests or builds unless the user explicitly asks for them.
 - If you find inconsistencies between docs, report them instead of inventing a version.
 - Keep instructions repo-specific; avoid duplicating large sections of general project docs here.
+- Write all project documentation and OpenSpec artifacts in Spanish unless the user explicitly requests another language.
 
 ## Useful Commands
 
