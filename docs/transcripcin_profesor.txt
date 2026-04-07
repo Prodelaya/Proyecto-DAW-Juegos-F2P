@@ -1,0 +1,87 @@
+Muy buenas. Eh, bienvenidos a todos y a todas a la nueva clase en directo de el modulo de diseno de interfaces,
+eh, correspondiente a, eh, bueno, esta es la segunda clase y como son nueve unidades y tenemos, eh, cinco semanas, pues esta sera correspondiente a la unidad
+tres. Hoy vamos a ver, eh, a seguir viendo un poquito de CSS en una clase un poquito mas avanzada.
+Ya, mmm, incluso vamos a ver una version final para abordar proyectos de mayor enverga-envergadura con CSS. Pero antes vamos a ver
+un-unos aspectos que he visto en algunos proyectos que me habeis enviado y que creo que es de interes para
+todos. Eem, lo primero que queria ver, y lo dejo aqui grabado para que lo podais abordar todos, porque yo creo que es un aspecto en
+el que es, eh, se suele cometer el error, eh, de forma comun, es en la introduccion, ¿vale? Em, como teniamos en la guia,
+voy a abrirla para que la tengamos aqui. ¿Vale? Como tenemos en la guia, eh, un poquito el objetivo de la introduccion
+va a ser contextualizar el proyecto, explicar el escenario real, delimitar el problema. Y digo, asi como, eh, banalmente, ¿no?
+Aqui no se vende humo, se demuestra que entiendes el contexto y por que tu solucion tiene sentido. Recordemos que,
+no lo pongo aqui, a ver, mmm, no lo pongo aqui. Que utilizaremos siempre el modo impersonal. Es decir, aunque yo
+este indicandote en esta guia que lo debes hacer tu en primera persona, pues se entiende que no, que es, es un modo de hablar, pero
+no, no utilizaremos la primera persona para abordar el objetivo de la introduccion, sino que todo se hace desde, desde el impersonal y
+apoyandonos en referencias, eh, para ello. Por ejemplo, os pongo un ejemplo aqui en el, en la propia guia. Actualmente, muchos pequenos negocios gestionan reservas
+mediante WhatsApp, llamadas y hojas de calculo. Aqui ya debe haber una referencia de apoyo, ¿vale? Hay datos sobre esto.
+Numero de empresas que utilizan este medio. Este metodo provoca duplicidades, falta de trazabilidad y un elevado tiempo de gestion, ¿vale? Incluso esto tambien podemos
+utilizar alguna referencia de apoyo. Por ejemplo, algun analisis sobre el uso de WhatsApp como medio de gestion. Seguro que hay, ¿eh? El proyecto propone una plataforma web que centraliza la
+disponibilidad, tal, tal. Esto es un superresumen. Hasta llegar aqui, hasta llegar aqui, que esta es, eh, la solucion debe haber una
+propuesta del problema. Problema. Mmm, bien detallada, bien explicada y con suficientes referencias para entender el problema, que no solo es
+detectado por vuestra parte, ¿no? Sino que esta respaldada por, por, por datos reales. Y ademas, eh, pues que, eh, como esto puede
+ocupar una o dos paginas, debe haber un hilo conductor claro que me va llevando desde la exposicion del problema, pasando por
+que, eh, se demuestra que entiendo el contexto y expongo en es-- lo que se llama el estado actual del arte,
+eh, pues bien explicado, hasta llegar a la solucion, ¿vale? A la solucion de una forma muy escueta. Aqui no es donde vamos a,
+mmm, exponer nuestra solucion ya y ya resolvemos todo el proyecto, sino que, mmm, mas bien aterrizamos hasta el objetivo
+general. Por eso a mi me gusta poner los objetivos inmediatamente despues de la introduccion, porque exponen el problema existente que nosotros tratamos de
+resolver. Suelen terminar con un objetivo general, pero podemos terminar con: «Y por tanto, eh, pues a continuacion se exponen los objetivos del proyecto».
+Objetivo general u objetivos generales y objetivos especificos, ¿vale? Por eso aqui, pues como vemos ya directamente, es, eh, es
+un error comun, que no esta mal, pero es muy mejorable, no empezar ya, con el, con la solucion, ¿vale?
+Esta es la solucion: «El presente trabajo de integrado consiste en el desarrollo de una aplicacion web, tal, tal, tal, tal», ¿vale?
+Y el objetivo es tal. La aplicacion permite para el desarrollo... Esto parece mas. Ademas, previamente al desarrollo se realizo un resumen.
+Esto parece un resumen y esta bien. De hecho, podriamos cogerlo y tratarlo como el resumen del proyecto. Le faltaria la parte de
+antecedentes, de, eh, contexto y demas. De hecho, pues son... Vaya, no me esta midiendo, perdon. Eh, a ver, un momentito.
+Doscientas cuarenta y siete palabras. Esta perfecto. Un resumen tiene que estar en torno a las doscientas cincuenta palabras.
+¿Vale? Siempre recordar justificado a ambos lados. Y en la introduccion yo tengo que ver ya varias referencias. No tienen por que ser de autores, pueden ser
+estadisticas, ¿vale? Como el numero de empresas y demas, que es muy comun a-- utilizarlo aqui. Y yo inmediatamente despues ya
+iria con los objetivos, ¿vale? Eh, se puede poner marco teorico, pero yo incluso en el, en la guia que os paso, los objetivos los
+pongo en el segundo lugar, ¿vale? Aqui, pues salen aqui en tercer lugar, pero yo los pondria mejor, eh, aqui, ¿vale? Intercambiamos marco teorico por
+objetivos. Se puede poner introduccion, marco teorico y objetivos, pero es preferible porque seguramente algun objetivo puede ir encaminado a resolverse a traves del marco teorico.
+Y me explico con esto. Si nuestro proyecto es de cor-- no es tan de corte practica en el desarrollo de un proyecto web
+y es mas, pues imaginemos, sobre el analisis de alguna tecnologia, ¿vale? Y en el marco teorico voy a abordar esa tecnologia, una profundizacion
+en, en dicha tecnologia, eh, pues uno de mis objetivos pueden ser analizar, eh, un framework y su uso en el, en los aplicativos de
+gestion de pequenas empresas. Pues quiza el-- le voy a dedicar gran parte del marco teorico a exponer lo que
+dicen diferentes autores sobre esa tecnologia y, por lo tanto, estoy cumpliendo el objetivo de hacer un analisis de esa tecnologia, analisis
+desde el, desde cor-- de una corte teorica. Por eso es, es conveniente hacerlo de esa forma. Ademas, queda mas claro.
+Yo leo una introduccion, veo la problematica, eh, veo la solucion que me proponen y me falta ver como se expresa eso en objetivos y como el proyecto va a abordar los
+diferentes objetivos antes de pasar incluso, pues al marco teorico. ¿Vale? Eeeh. Muy bien, como-- e-esto es un ejemplo, ¿vale?
+Eh, pues como aqui, por ejemplo, hacen mencion a las imagenes que van apareciendo, ¿vale? Eh, y con su titulo,
+con su referencia a cada imagen. Falta el titulo. Imagen uno. ¿Que es esto? Arquitectura del proyecto. Incluso podemos... Eh,
+zona cliente, zona gestion y zona servidor, ¿vale? Y ya tenemos nuestro titulo puesto. Incluso dijimos que esto va una por debajo
+y la imagen si puede ser en n*****a, ¿vale? Y seguimos con el texto en justificado, ¿vale? Muy bien el marco teorico, eh, abordando,
+pues los principales conceptos que van a-- de-de los que va a versar el proyecto. Pues aqui aplicaciones web, ehm,
+pues el HTML, el CSS, que son, pues JavaScript, PHP, es lo que van a utilizar en el proyecto, pues hay que describirlo.
+Yo le dedi-le dedicaria, mmm, mas espacio desde la definicion propia de la tecnologia a como un repaso rapido de su evolucion
+y cual es el uso actual. E incluso si nosotros vamos a hacer algun uso especifico o particular de esa tecnologia, pues tambien abordarlo en el marco
+teorico. E incluso, pues aqui ya nos dejan referencias y esto esta muy bien, cada tecnologia con una referencia. Pero cuidado, tenemos que diferenciar muy bien que es
+una referencia bibliografica y una cita bibliografica. Ehm, de hecho, a ver. Referencia. Y he dicho referencias o bibliografia. Vale, muy bien. Ellos lo hacen bien.
+En el apartado de bibliografia, al final, que es uno de los ultimos, antes de los anexos, nos van indicando las diferentes referencias
+bibliograficas que han ido utilizando. De hecho, lo mas correcto es que aparezcan en el mismo orden ennn que han ido-- que han sido utilizadas en el texto o por orden
+alfabetico. Por orden alfabetico es como se suele hacer en ord-- en formato APA. Aunque algunas revistas, pues el orden de aparicion tambien es un
+criterio. Eeeh, pero no hace falta que pongan referencia uno, a web, referencia dos. Esto no hace falta. No estaria mal.
+De hecho, incluso si ya lo has hecho, pues te diria: "Vale, dejalo". Pero no, no es el formato APA que se
+utiliza. Da sea tres si para trabajar... Bueno, una, una nota aclaratoria, vale. Eeeh, esto es una referencia bibliografica. Es, eh, apellido,
+eh, coma, inicial, punto, ano entre parentesis, punto, nombre de la publicacion en, en cursiva, punto, la editorial, si fuera
+un libro. Si fuera un articulo, pues volumen, numero, pero bueno, revista. Eh, esta es la forma en la que se hace una
+referencia bibliografica, pero durante el texto no es necesario poner toda la referencia. A modo de, eh, aligerar, ¿no? Es, es, es simplemente poner el
+apellido y el ano. Y ya cuando yo quiero ver la referencia completa, si yo quisiera buscar luego el trabajo y leerlo, entonces me voy al
+apartado de referencias y la busco completa. Entonces, aqui, eh, donde estabamos antes, pues no haria falta ponerlo asi.
+¿Como lo ponemos? Eh, bueno, aqui han puesto... Si han puesto a modo cita, ¿vale? Ellos lo han, lo han hecho bastante bien, casi
+acertado. Pero hay dos formas de hacerlo, si es durante el texto, ¿vale? Aplicaciones web. Han utilizado Lujan M**a, eh,
+2002. Pues ya primero, en la inicial no va, fuera. La inicial no hace falta, solo los apellidos. ¿Y como lo
+hariamos? Podemos hacerlo de varias formas. Una: "Siguiendo a Lujan M**a en 2002, las aplicaciones web interactivas son un tipo tal, tal, tal, tal, tal".
+Y esto, fuera. Mirad, ya esta, ya lo he citado. Y me vale para-- se entiende que Lu-- que he sacado toda esta informacion de Lujan y
+M**a. Hay incluso trabajos, y a mi me parece muy acertado, que, pues pongo una n*****a y una cursiva y voy destacando las distintas referencias.
+Ademas, hace visible que, eh, hay diferentes citas durante el texto. Otra forma de hacerlo seria, pues hago toda la
+toda la informacion que he sacado de ese sitio y voy por parrafos. "Lujan M**a, 2002". Y pues igual, n*****a,
+cursiva. Y como diferentes parrafos pues son del mismo autor, pues los voy poniendo. Esto a veces queda un poco redundante, pero es que lo normal
+o, o lo que se suele hacer en trabajos es utilizar diferentes referencias, diferentes citas para diferentes, eh, apartados, diferentes
+parrafos. Oye, yo es que en aplicaciones web aqui voy a utilizar a Lujan M**a, pero es que despues voy a hablar del uso
+de las aplicaciones web en entornos actuales y p-para eso utilizo otro autor: A. Casado. Pues entonces, el siguiente parrafo, eh,
+utiliza Casado en 2023. Y, eh, asi se va citando. Que no, que vais a utilizar solo un autor para todo un apartado
+entero, pues siguiendo tal, tal, tal y ya toda la... ¿Vale? Pero no hace falta poner esto, que, oye, pues como aproximacion no esta mal, pero esta seria la
+correcta, ¿vale? Y esas son las dos. La diferencia entre una y otra es simplemente en la sintaxis, es que estaba entre parentesis apellidos.
+Aqui no irian iniciales. Eh, apellidos y ano entre parentesis y aqui apellido, o sea, apellidos sin parentesis y solo el ano entre parentesis, porque estoy ya mencionandolo, ¿no?
+Siguiendo a Lujan M**a, en 2002 entre parentesis y todo el texto. Y aqui todo va entre parentesis y no se lee, ¿vale?
+De manera digital y gratuita para la Asociacion de Lujan y M**a en 2002. Todo lo que he dicho antes es de
+esto. ¿Vale? Y mmm, mmm, mmm. Eh, mmm, bueno, en principio eso, ¿vale? Vale, vamos a ver el tema de, del CSS. Para eso vamos a crear una
+carpeta. Mmm. ¿Vale? Que es diseno de interfaces UT3. Y vamos a cargarla en Visual Studio Code. Abro VS Code.
