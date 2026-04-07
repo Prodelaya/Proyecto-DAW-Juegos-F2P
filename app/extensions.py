@@ -10,7 +10,7 @@ bcrypt = Bcrypt()
 csrf = CSRFProtect()
 
 login_manager.login_view = "auth_bp.login"
-login_manager.login_message = "Tenés que iniciar sesión para acceder a esta página."
+login_manager.login_message = "Tenés que iniciar sesión para continuar."
 login_manager.login_message_category = "warning"
 
 

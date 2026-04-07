@@ -1,5 +1,66 @@
-<!-- TODO: Implementar formulario de login (extends base.html) -->
-<!-- Card Bootstrap centrada -->
-<!-- Formulario POST con CSRF token -->
-<!-- Campos: email (type=email), password -->
-<!-- Enlace a registro: "¿No tienes cuenta?" -->
+{% extends 'base.html' %}
+
+{% block title %}Iniciar sesión | F2P Catalog{% endblock %}
+
+{% block content %}
+  <section class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-5">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-4">
+          <div class="text-center mb-4">
+            <h1 class="h3 mb-2">Iniciá sesión</h1>
+            <p class="text-muted mb-0">Accedé con tu email para continuar usando tu cuenta.</p>
+          </div>
+
+          {% if general_error %}
+            <div class="alert alert-danger" role="alert">
+              {{ general_error }}
+            </div>
+          {% endif %}
+
+          <form method="post" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="next" value="{{ next_value }}">
+
+            <div class="mb-3">
+              <label class="form-label" for="email">Email</label>
+              <input
+                class="form-control{% if errors.email %} is-invalid{% endif %}"
+                id="email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                value="{{ form_data.email or '' }}"
+                required
+              >
+              {% if errors.email %}
+                <div class="invalid-feedback d-block">{{ errors.email }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label" for="password">Contraseña</label>
+              <input
+                class="form-control{% if errors.password %} is-invalid{% endif %}"
+                id="password"
+                name="password"
+                type="password"
+                autocomplete="current-password"
+                required
+              >
+              {% if errors.password %}
+                <div class="invalid-feedback d-block">{{ errors.password }}</div>
+              {% endif %}
+            </div>
+
+            <button class="btn btn-primary w-100" type="submit">Ingresar</button>
+          </form>
+        </div>
+        <div class="card-footer bg-white border-0 text-center pb-4 pt-0">
+          <span class="text-muted">¿No tenés cuenta?</span>
+          <a href="{{ url_for('auth_bp.register') }}">Creala desde registro</a>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

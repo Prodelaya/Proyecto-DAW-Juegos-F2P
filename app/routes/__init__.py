@@ -4,8 +4,10 @@
 
 
 def register_routes(app):
+    from app.routes.auth import auth_bp
     from app.routes.games import games_bp
     from app.routes.main import main_bp
 
     app.register_blueprint(main_bp)
+    app.register_blueprint(auth_bp)
     app.register_blueprint(games_bp)
