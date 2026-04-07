@@ -4,6 +4,7 @@ from flask import Flask
 
 from app.config import Config
 from app.extensions import bcrypt, csrf, db, login_manager
+from app.routes import register_routes
 
 
 def create_app():
@@ -22,8 +23,6 @@ def create_app():
     with app.app_context():
         db.create_all()
 
-    @app.get("/")
-    def hello_world():
-        return "Hello World"
+    register_routes(app)
 
     return app

@@ -1,34 +1,70 @@
-# TODO: Implementar cliente HTTP para la API FreeToGame
-# Encapsula las llamadas a la API externa. Maneja errores (timeout, API caída).
-# Devuelve None o lista vacía en caso de error, nunca rompe la app.
-# Rate limit de la API: máximo 10 req/s → usar time.sleep(0.15) entre llamadas a /game?id.
-# Ver: docs/06-API-FreeToGame.md
+from __future__ import annotations
+
+import time
+from typing import Any
+
+import requests
+from flask import current_app
 
 
-def fetch_all_games():
-    """Llama a GET /api/games y devuelve lista de diccionarios con datos básicos de cada juego.
-    Retorna lista vacía en caso de error.
-
-    Campos devueltos por la API: id, title, thumbnail, short_description, game_url,
-    genre, platform, publisher, developer, release_date, freetogame_profile_url.
-    """
-    # TODO: Implementar llamada a la API
-    # 1. GET {api_url}/games (obtener URL de current_app.config)
-    # 2. Manejar excepciones: requests.RequestException, timeout (10s)
-    # 3. Verificar response.status_code == 200
-    # 4. Retornar response.json() o [] en caso de error
-    pass
+REQUEST_TIMEOUT_SECONDS = 10
+MAX_RETRIES = 3
+RETRY_DELAY_SECONDS = 1
 
 
-def fetch_game_detail(api_id):
-    """Llama a GET /api/game?id={api_id} y devuelve diccionario con datos extendidos.
-    Retorna None en caso de error.
+def _build_url(path: str) -> str:
+    base_url = current_app.config["FREETOGAME_API_URL"].rstrip("/")
+    return f"{base_url}/{path.lstrip('/')}"
 
-    Campos adicionales sobre fetch_all_games: description, status,
-    minimum_system_requirements (os, processor, memory, graphics, storage), screenshots.
-    """
-    # TODO: Implementar llamada al detalle
-    # 1. GET {api_url}/game?id={api_id}
-    # 2. Manejar excepciones
-    # 3. Retornar response.json() o None en caso de error
-    pass
+
+def _request_json(path: str, *, params: dict[str, Any] | None = None) -> Any | None:
+    url = _build_url(path)
+
+    for attempt in range(1, MAX_RETRIES + 1):
+        try:
+            response = requests.get(url, params=params, timeout=REQUEST_TIMEOUT_SECONDS)
+            response.raise_for_status()
+            return response.json()
+        except (requests.RequestException, ValueError) as exc:
+            if attempt == MAX_RETRIES:
+                current_app.logger.error(
+                    "FreeToGame request failed after %s attempts: %s params=%s error=%s",
+                    MAX_RETRIES,
+                    url,
+                    params,
+                    exc,
+                )
+            else:
+                current_app.logger.warning(
+                    "FreeToGame request failed (attempt %s/%s): %s params=%s error=%s",
+                    attempt,
+                    MAX_RETRIES,
+                    url,
+                    params,
+                    exc,
+                )
+                time.sleep(RETRY_DELAY_SECONDS)
+
+    return None
+
+
+def fetch_all_games() -> list[dict[str, Any]]:
+    """Obtiene el listado básico de juegos para seed/refresh manual."""
+    payload = _request_json("games")
+    if not isinstance(payload, list):
+        current_app.logger.error("FreeToGame devolvió un listado inválido para /games")
+        return []
+
+    return payload
+
+
+def fetch_game_detail(api_id: int) -> dict[str, Any] | None:
+    """Obtiene el detalle de un juego para seed/refresh manual."""
+    payload = _request_json("game", params={"id": api_id})
+    if not isinstance(payload, dict):
+        current_app.logger.error(
+            "FreeToGame devolvió un detalle inválido para game id=%s", api_id
+        )
+        return None
+
+    return payload

@@ -4,6 +4,8 @@
 
 
 def register_routes(app):
-    # TODO: Importar y registrar todos los blueprints:
-    # main_bp, auth_bp, games_bp, reviews_bp, library_bp, profile_bp, admin_bp
-    pass
+    from app.routes.games import games_bp
+    from app.routes.main import main_bp
+
+    app.register_blueprint(main_bp)
+    app.register_blueprint(games_bp)

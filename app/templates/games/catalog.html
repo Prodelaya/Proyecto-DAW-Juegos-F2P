@@ -1,7 +1,93 @@
-<!-- TODO: Implementar catálogo de juegos (extends base.html) -->
-<!-- Variables: games (Pagination), genres, platforms, current_genre, current_platform, current_sort, current_query -->
-<!-- Zona de filtros: form GET con selects (género, plataforma, sort), input búsqueda, botón filtrar -->
-<!-- Contador total de juegos encontrados -->
-<!-- Grid de juegos usando partials/game_card.html -->
-<!-- Mensaje "No se encontraron juegos" si vacío -->
-<!-- Include partials/pagination.html -->
+{% extends 'base.html' %}
+
+{% block title %}Catálogo | F2P Catalog{% endblock %}
+
+{% block content %}
+  <section class="mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-end mb-3">
+      <div>
+        <h1 class="mb-1">Catálogo público</h1>
+        <p class="text-muted mb-0">Buscá por título o descripción breve y combiná filtros sin salir del estado canónico de la URL.</p>
+      </div>
+      <a class="btn btn-outline-secondary" href="{{ url_for('games_bp.catalog') }}">Resetear filtros</a>
+    </div>
+
+    <form method="get" action="{{ url_for('games_bp.catalog') }}" class="card card-body border-0 shadow-sm">
+      <input type="hidden" name="page" value="1">
+      <div class="row g-3">
+        <div class="col-12 col-lg-4">
+          <label class="form-label" for="q">Búsqueda</label>
+          <input id="q" name="q" class="form-control" type="search" value="{{ current_filters.q }}" placeholder="Título o descripción breve">
+        </div>
+        <div class="col-12 col-md-4 col-lg-2">
+          <label class="form-label" for="genre">Género</label>
+          <select id="genre" name="genre" class="form-select">
+            <option value="">Todos</option>
+            {% for genre in filter_options.genres %}
+              <option value="{{ genre }}" {% if current_filters.genre == genre %}selected{% endif %}>{{ genre }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-4 col-lg-2">
+          <label class="form-label" for="platform">Plataforma</label>
+          <select id="platform" name="platform" class="form-select">
+            <option value="">Todas</option>
+            {% for platform in filter_options.platforms %}
+              <option value="{{ platform }}" {% if current_filters.platform == platform %}selected{% endif %}>{{ platform }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-4 col-lg-2">
+          <label class="form-label" for="publisher">Publisher</label>
+          <select id="publisher" name="publisher" class="form-select">
+            <option value="">Todos</option>
+            {% for publisher in filter_options.publishers %}
+              <option value="{{ publisher }}" {% if current_filters.publisher == publisher %}selected{% endif %}>{{ publisher }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-2">
+          <label class="form-label" for="sort">Orden</label>
+          <select id="sort" name="sort" class="form-select">
+            <option value="alphabetical" {% if current_filters.sort == 'alphabetical' %}selected{% endif %}>Alfabético</option>
+            <option value="review_count" {% if current_filters.sort == 'review_count' %}selected{% endif %}>Más reseñas</option>
+            <option value="avg_rating" {% if current_filters.sort == 'avg_rating' %}selected{% endif %}>Mejor valorados</option>
+            <option value="release_date" {% if current_filters.sort == 'release_date' %}selected{% endif %}>Más recientes</option>
+          </select>
+        </div>
+        <div class="col-12 col-md-6 col-lg-12 d-flex justify-content-end">
+          <button class="btn btn-primary" type="submit">Aplicar filtros</button>
+        </div>
+      </div>
+    </form>
+  </section>
+
+  <section>
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center mb-3">
+      <p class="mb-0 text-muted">
+        {% if has_results %}
+          {{ total_count }} juego{% if total_count != 1 %}s{% endif %} encontrados.
+        {% else %}
+          No hay resultados para los criterios actuales.
+        {% endif %}
+      </p>
+      <p class="mb-0 small text-muted">Página {{ pagination.page }} de {{ pagination.pages or 1 }}</p>
+    </div>
+
+    {% if has_results %}
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4 mb-4">
+        {% for game in games %}
+          <div class="col">
+            {% include 'partials/game_card.html' %}
+          </div>
+        {% endfor %}
+      </div>
+
+      {% include 'partials/pagination.html' %}
+    {% else %}
+      <div class="alert alert-secondary mb-0" role="alert">
+        No encontramos juegos con esa búsqueda o combinación de filtros. Probá ajustar los criterios o <a href="{{ url_for('games_bp.catalog') }}" class="alert-link">resetear el catálogo</a>.
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

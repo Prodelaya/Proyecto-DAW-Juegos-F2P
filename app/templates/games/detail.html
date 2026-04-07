@@ -1,20 +1,128 @@
-<!-- TODO: Implementar ficha de juego (extends base.html) -->
-<!-- Variables: game, reviews, avg_rating, review_count, user_review, user_library_entry -->
+{% extends 'base.html' %}
 
-<!-- Zona superior: thumbnail, título, tabla datos (género, plataforma, developer, publisher, release_date) -->
-<!-- Descripción larga (game.description or game.short_description) -->
-<!-- Enlace "Jugar" (game.game_url) -->
-<!-- Screenshots gallery (game.screenshots — lista de URLs JSON) -->
-<!-- Requisitos del sistema: tabla con req_os, req_processor, req_memory, req_graphics, req_storage -->
-<!-- Timestamp: "Actualizado: DD/MM/YYYY" (game.cached_at) -->
+{% block title %}{{ game.title }} | F2P Catalog{% endblock %}
 
-<!-- Zona biblioteca (solo si logueado): -->
-<!--   Si ya en biblioteca: select cambiar status + botón quitar -->
-<!--   Si no: botón "Añadir a mi biblioteca" -->
-<!--   Formularios con CSRF token -->
+{% block content %}
+  <section class="mb-5">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <img src="{{ game.thumbnail or 'https://placehold.co/600x338?text=Sin+imagen' }}" alt="Portada de {{ game.title }}" class="img-fluid rounded border w-100">
+      </div>
+      <div class="col-lg-8">
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          {% if game.genre %}<span class="badge text-bg-primary">{{ game.genre }}</span>{% endif %}
+          {% if game.platform %}<span class="badge text-bg-secondary">{{ game.platform }}</span>{% endif %}
+          {% if game.status %}<span class="badge text-bg-dark">{{ game.status }}</span>{% endif %}
+        </div>
+        <h1 class="mb-3">{{ game.title }}</h1>
+        <p class="lead text-muted">{{ game.short_description or 'Sin descripción breve disponible.' }}</p>
 
-<!-- Zona reseñas: -->
-<!--   Encabezado con nota media y conteo -->
-<!--   Formulario nueva reseña (si logueado y sin reseña): select rating 1-5 + textarea 10-1000 chars -->
-<!--   Listado de reseñas: username, rating, texto, fecha -->
-<!--   Botones editar/eliminar (autor) y eliminar (admin) con CSRF -->
+        <dl class="row mb-4">
+          <dt class="col-sm-3">Developer</dt>
+          <dd class="col-sm-9">{{ game.developer or 'No informado' }}</dd>
+          <dt class="col-sm-3">Publisher</dt>
+          <dd class="col-sm-9">{{ game.publisher or 'No informado' }}</dd>
+          <dt class="col-sm-3">Lanzamiento</dt>
+          <dd class="col-sm-9">{{ game.release_date or 'No informado' }}</dd>
+          <dt class="col-sm-3">Reseñas</dt>
+          <dd class="col-sm-9">
+            {{ review_summary.count }} opinión{% if review_summary.count != 1 %}es{% endif %}
+            {% if review_summary.avg_rating is not none %}
+              · Promedio {{ '%.1f'|format(review_summary.avg_rating) }}/5
+            {% endif %}
+          </dd>
+          <dt class="col-sm-3">Actualizado</dt>
+          <dd class="col-sm-9">{{ game.cached_at.strftime('%d/%m/%Y %H:%M') if game.cached_at else 'No disponible' }}</dd>
+        </dl>
+
+        {% if game.game_url %}
+          <a class="btn btn-primary" href="{{ game.game_url }}" target="_blank" rel="noreferrer">Ir al juego</a>
+        {% endif %}
+        {% if game.freetogame_profile_url %}
+          <a class="btn btn-outline-secondary" href="{{ game.freetogame_profile_url }}" target="_blank" rel="noreferrer">Ver ficha en FreeToGame</a>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <h2 class="h3 mb-3">Descripción</h2>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <p class="mb-0">{{ game.description or game.short_description }}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="mb-5">
+    <h2 class="h3 mb-3">Requisitos mínimos</h2>
+    {% if has_requirements %}
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <dl class="row mb-0">
+            <dt class="col-md-3">Sistema operativo</dt>
+            <dd class="col-md-9">{{ requirements.os or 'No informado' }}</dd>
+            <dt class="col-md-3">Procesador</dt>
+            <dd class="col-md-9">{{ requirements.processor or 'No informado' }}</dd>
+            <dt class="col-md-3">Memoria</dt>
+            <dd class="col-md-9">{{ requirements.memory or 'No informado' }}</dd>
+            <dt class="col-md-3">Gráficos</dt>
+            <dd class="col-md-9">{{ requirements.graphics or 'No informado' }}</dd>
+            <dt class="col-md-3">Almacenamiento</dt>
+            <dd class="col-md-9">{{ requirements.storage or 'No informado' }}</dd>
+          </dl>
+        </div>
+      </div>
+    {% else %}
+      <div class="alert alert-secondary mb-0" role="alert">
+        Este juego no informa requisitos mínimos en la fuente cacheada.
+      </div>
+    {% endif %}
+  </section>
+
+  {% if screenshots %}
+    <section class="mb-5">
+      <h2 class="h3 mb-3">Screenshots</h2>
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        {% for screenshot in screenshots %}
+          <div class="col">
+            <img src="{{ screenshot }}" alt="Screenshot {{ loop.index }} de {{ game.title }}" class="img-fluid rounded border w-100">
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+  {% endif %}
+
+  <section>
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center mb-3">
+      <div>
+        <h2 class="h3 mb-1">Reseñas de la comunidad</h2>
+        <p class="text-muted mb-0">Solo lectura pública: sin acciones de auth, CRUD ni biblioteca en este change.</p>
+      </div>
+      <span class="badge text-bg-light border">{{ review_summary.count }} reseñas</span>
+    </div>
+
+    {% if reviews %}
+      <div class="vstack gap-3">
+        {% for review in reviews %}
+          <article class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-2">
+                <div>
+                  <h3 class="h6 mb-1">{{ review.user.username }}</h3>
+                  <p class="small text-muted mb-0">{{ review.created_at.strftime('%d/%m/%Y') }}</p>
+                </div>
+                <span class="badge text-bg-dark align-self-start">{{ review.rating }}/5</span>
+              </div>
+              <p class="mb-0">{{ review.text }}</p>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-secondary mb-0" role="alert">
+        Todavía no hay reseñas publicadas para este juego.
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}

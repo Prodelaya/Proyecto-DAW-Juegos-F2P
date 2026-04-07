@@ -1,7 +1,12 @@
-# Seed de reseñas — Genera ~50-80 reseñas variadas entre usuarios demo y juegos populares.
-# Ratings con distribución realista (más 3s y 4s). Textos de un array predefinido.
-# Fechas repartidas en los últimos 30 días. Respeta constraint unique (user_id, game_id).
-# Ver: docs/02-Estructura-y-archivos.md (sección seeds/seed_reviews.py)
+from __future__ import annotations
+
+import random
+from datetime import datetime, timedelta
+
+from app.extensions import db
+from app.models.game import Game
+from app.models.review import Review
+from app.models.user import User
 
 # Frases variadas para reseñas de ejemplo
 REVIEW_TEXTS = [
@@ -32,15 +37,51 @@ RATING_WEIGHTS = [1, 2, 3, 3, 2]  # pesos para ratings 1, 2, 3, 4, 5
 
 
 def seed_reviews():
-    """Genera reseñas de ejemplo. Retorna el número de reseñas creadas."""
-    # TODO: Implementar seed de reseñas
-    # 1. Obtener usuarios demo (no admin)
-    # 2. Seleccionar 20-30 juegos de la BD
-    # 3. Por cada usuario, asignar 8-15 juegos aleatorios
-    # 4. Crear Review con rating (distribución realista con RATING_WEIGHTS),
-    #    texto (aleatorio de REVIEW_TEXTS),
-    #    fecha (aleatoria en los últimos 30 días)
-    # 5. Respetar constraint unique (user_id, game_id)
-    # 6. db.session.commit()
-    # 7. Retornar conteo
-    pass
+    """Genera reseñas demo recientes e idempotentes para soportar la lectura pública."""
+    demo_users = User.query.filter_by(is_admin=False).order_by(User.id.asc()).all()
+    candidate_games = Game.query.order_by(Game.release_date.desc(), Game.id.asc()).limit(24).all()
+
+    if not demo_users or not candidate_games:
+        return 0
+
+    rng = random.Random(20260407)
+    created_or_updated = 0
+    now = datetime.utcnow()
+
+    for user_index, user in enumerate(demo_users):
+        start_index = (user_index * 3) % len(candidate_games)
+        assigned_games = [
+            candidate_games[(start_index + offset) % len(candidate_games)]
+            for offset in range(10)
+        ]
+
+        for position, game in enumerate(assigned_games):
+            review = Review.query.filter_by(user_id=user.id, game_id=game.id).first()
+            rating = rng.choices([1, 2, 3, 4, 5], weights=RATING_WEIGHTS, k=1)[0]
+            text = REVIEW_TEXTS[(user_index * len(assigned_games) + position) % len(REVIEW_TEXTS)]
+            created_at = now - timedelta(
+                days=(user_index + position) % 12,
+                hours=(position * 3) % 24,
+                minutes=(user_index * 11 + position * 7) % 60,
+            )
+
+            if review is None:
+                review = Review(
+                    user_id=user.id,
+                    game_id=game.id,
+                    rating=rating,
+                    text=text,
+                    created_at=created_at,
+                    updated_at=created_at,
+                )
+                db.session.add(review)
+            else:
+                review.rating = rating
+                review.text = text
+                review.created_at = created_at
+                review.updated_at = created_at
+
+            created_or_updated += 1
+
+    db.session.commit()
+    return created_or_updated
