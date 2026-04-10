@@ -44,17 +44,18 @@ def _normalize_screenshots(raw_screenshots) -> list[str]:
     return screenshots
 
 
-def seed_games() -> int:
+def seed_games() -> dict[str, int]:
     """Cachea todos los juegos de la API en la base local de forma idempotente."""
     games_payload = fetch_all_games()
     if not games_payload:
-        return 0
+        return {"processed": 0, "failed": 0}
 
-    processed_count = 0
+    summary = {"processed": 0, "failed": 0}
 
-    for summary in games_payload:
-        api_id = summary.get("id")
+    for game_summary in games_payload:
+        api_id = game_summary.get("id")
         if api_id is None:
+            summary["failed"] += 1
             continue
 
         detail = fetch_game_detail(api_id)
@@ -65,30 +66,30 @@ def seed_games() -> int:
             if game is None:
                 game = Game(
                     api_id=api_id,
-                    title=summary.get("title") or f"Juego {api_id}",
+                    title=game_summary.get("title") or f"Juego {api_id}",
                     description=(
                         (detail or {}).get("description")
-                        or summary.get("short_description")
+                        or game_summary.get("short_description")
                         or DEFAULT_DESCRIPTION
                     ),
                 )
                 db.session.add(game)
 
-            game.title = summary.get("title") or game.title
-            game.thumbnail = summary.get("thumbnail")
-            game.short_description = summary.get("short_description")
-            game.game_url = summary.get("game_url")
-            game.genre = summary.get("genre")
-            game.platform = summary.get("platform")
-            game.publisher = summary.get("publisher")
-            game.developer = summary.get("developer")
-            game.release_date = _normalize_release_date(summary.get("release_date"))
-            game.freetogame_profile_url = summary.get("freetogame_profile_url")
+            game.title = game_summary.get("title") or game.title
+            game.thumbnail = game_summary.get("thumbnail")
+            game.short_description = game_summary.get("short_description")
+            game.game_url = game_summary.get("game_url")
+            game.genre = game_summary.get("genre")
+            game.platform = game_summary.get("platform")
+            game.publisher = game_summary.get("publisher")
+            game.developer = game_summary.get("developer")
+            game.release_date = _normalize_release_date(game_summary.get("release_date"))
+            game.freetogame_profile_url = game_summary.get("freetogame_profile_url")
 
             if detail:
                 game.description = (
                     detail.get("description")
-                    or summary.get("short_description")
+                    or game_summary.get("short_description")
                     or game.description
                     or DEFAULT_DESCRIPTION
                 )
@@ -102,7 +103,7 @@ def seed_games() -> int:
             else:
                 game.description = (
                     game.description
-                    or summary.get("short_description")
+                    or game_summary.get("short_description")
                     or DEFAULT_DESCRIPTION
                 )
                 game.screenshots = game.screenshots or []
@@ -110,13 +111,14 @@ def seed_games() -> int:
             game.cached_at = datetime.utcnow()
 
             db.session.commit()
-            processed_count += 1
+            summary["processed"] += 1
         except Exception as exc:  # pragma: no cover - robustez del seed manual
             db.session.rollback()
+            summary["failed"] += 1
             current_app.logger.error(
                 "No se pudo seedear el juego api_id=%s: %s", api_id, exc
             )
         finally:
             time.sleep(DETAIL_RATE_LIMIT_SECONDS)
 
-    return processed_count
+    return summary

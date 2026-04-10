@@ -1,6 +1,150 @@
-<!-- TODO: Implementar Mi Biblioteca (extends base.html) -->
-<!-- Variables: entries (lista de UserLibrary), current_status -->
-<!-- Filtro por estado: botones/pestañas (Todos, Quiero jugar, Jugando, Jugado) con enlaces -->
-<!-- Grid de juegos con partials/game_card.html -->
-<!-- Por cada entry: select cambiar status + botón quitar (formularios con CSRF) -->
-<!-- Mensaje "Biblioteca vacía" con enlace al catálogo si no hay entries -->
+{% extends 'base.html' %}
+
+{% block title %}Mi biblioteca | F2P Catalog{% endblock %}
+
+{% block content %}
+  <section class="mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-end">
+      <div>
+        <p class="text-muted mb-2">Área privada</p>
+        <h1 class="h2 mb-1">Mi biblioteca</h1>
+        <p class="text-muted mb-0">Gestioná tus juegos guardados con un filtro simple por estado.</p>
+      </div>
+      <a class="btn btn-outline-primary" href="{{ url_for('games_bp.catalog') }}">Explorar catálogo</a>
+    </div>
+  </section>
+
+  <section class="mb-4">
+    <div class="d-flex flex-wrap gap-2">
+      <a
+        class="btn {% if not current_status %}btn-primary{% else %}btn-outline-primary{% endif %}"
+        href="{{ url_for('library_bp.my_library') }}"
+      >
+        Todos
+      </a>
+      {% for status in available_statuses %}
+        <a
+          class="btn {% if current_status == status %}btn-primary{% else %}btn-outline-primary{% endif %}"
+          href="{{ url_for('library_bp.my_library', status=status) }}"
+        >
+          {% if status == 'want_to_play' %}
+            Quiero jugar
+          {% elif status == 'playing' %}
+            Jugando
+          {% else %}
+            Jugado
+          {% endif %}
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+
+  {% if has_results %}
+    <section class="row row-cols-1 row-cols-xl-2 g-4">
+      {% for entry in entries %}
+        <div class="col">
+          <article class="card border-0 shadow-sm h-100">
+            <div class="row g-0 h-100">
+              <div class="col-md-4">
+                <img
+                  src="{{ entry.game.thumbnail or 'https://placehold.co/600x338?text=Sin+imagen' }}"
+                  class="img-fluid rounded-start h-100 w-100 object-fit-cover"
+                  alt="Portada de {{ entry.game.title }}"
+                >
+              </div>
+              <div class="col-md-8">
+                <div class="card-body d-flex flex-column h-100">
+                  <div class="d-flex flex-wrap gap-2 mb-2">
+                    {% if entry.game.genre %}<span class="badge text-bg-primary">{{ entry.game.genre }}</span>{% endif %}
+                    {% if entry.game.platform %}<span class="badge text-bg-secondary">{{ entry.game.platform }}</span>{% endif %}
+                  </div>
+
+                  <h2 class="h4 mb-2">{{ entry.game.title }}</h2>
+                  <p class="text-muted small mb-3">
+                    Agregado el {{ entry.created_at.strftime('%d/%m/%Y') if entry.created_at else 'sin fecha disponible' }}
+                  </p>
+                  <p class="flex-grow-1 mb-3">{{ entry.game.short_description or 'Sin descripción breve disponible.' }}</p>
+
+                  <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                    <span class="badge text-bg-dark">
+                      Estado actual:
+                      {% if entry.status == 'want_to_play' %}
+                        Quiero jugar
+                      {% elif entry.status == 'playing' %}
+                        Jugando
+                      {% else %}
+                        Jugado
+                      {% endif %}
+                    </span>
+                    <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('games_bp.detail', id=entry.game.id) }}">Ver ficha</a>
+                  </div>
+
+                  <div class="row g-2 mt-auto">
+                    <div class="col-12 col-lg-7">
+                      <form method="post" action="{{ url_for('library_bp.update_status', id=entry.id) }}" class="d-grid gap-2">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input
+                          type="hidden"
+                          name="next"
+                          value="{% if current_status %}{{ url_for('library_bp.my_library', status=current_status) }}{% else %}{{ url_for('library_bp.my_library') }}{% endif %}"
+                        >
+                        <label class="form-label mb-0" for="status-{{ entry.id }}">Cambiar estado</label>
+                        <div class="input-group">
+                          <select class="form-select" id="status-{{ entry.id }}" name="status">
+                            {% for status in available_statuses %}
+                              <option value="{{ status }}" {% if entry.status == status %}selected{% endif %}>
+                                {% if status == 'want_to_play' %}
+                                  Quiero jugar
+                                {% elif status == 'playing' %}
+                                  Jugando
+                                {% else %}
+                                  Jugado
+                                {% endif %}
+                              </option>
+                            {% endfor %}
+                          </select>
+                          <button class="btn btn-primary" type="submit">Guardar</button>
+                        </div>
+                      </form>
+                    </div>
+                    <div class="col-12 col-lg-5">
+                      <form method="post" action="{{ url_for('library_bp.remove', id=entry.id) }}" class="h-100 d-grid">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <input
+                          type="hidden"
+                          name="next"
+                          value="{% if current_status %}{{ url_for('library_bp.my_library', status=current_status) }}{% else %}{{ url_for('library_bp.my_library') }}{% endif %}"
+                        >
+                        <button class="btn btn-outline-danger align-self-end" type="submit">Quitar de biblioteca</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      {% endfor %}
+    </section>
+  {% else %}
+    <section>
+      <div class="alert alert-secondary mb-0" role="alert">
+        {% if current_status %}
+          No tenés juegos en el estado
+          <strong>
+            {% if current_status == 'want_to_play' %}
+              Quiero jugar
+            {% elif current_status == 'playing' %}
+              Jugando
+            {% else %}
+              Jugado
+            {% endif %}
+          </strong>.
+          Probá con otro filtro o agregá nuevos juegos desde el catálogo.
+        {% else %}
+          Tu biblioteca todavía está vacía. Agregá juegos desde el catálogo para empezar a organizarla.
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

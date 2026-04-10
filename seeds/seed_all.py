@@ -11,15 +11,25 @@ if __package__ in {None, ""}:
 from app import create_app
 from app.extensions import db
 from seeds.seed_games import seed_games
+from seeds.seed_library import seed_library
 from seeds.seed_reviews import seed_reviews
 from seeds.seed_users import seed_users
 
 
+def _format_seed_result(result):
+    if isinstance(result, dict):
+        processed = int(result.get("processed", 0))
+        failed = int(result.get("failed", 0))
+        return f"processed={processed}, failed={failed}"
+
+    return str(result)
+
+
 def _run_seed_step(label, callback):
     try:
-        count = callback()
-        print(f"{label}: OK ({count})")
-        return count
+        result = callback()
+        print(f"{label}: OK ({_format_seed_result(result)})")
+        return result
     except Exception as exc:  # pragma: no cover - flujo manual de seed
         db.session.rollback()
         print(f"{label}: ERROR ({exc})")
@@ -30,13 +40,15 @@ def seed_all():
     app = create_app()
 
     with app.app_context():
-        games_count = _run_seed_step("Juegos cacheados", seed_games)
+        games_result = _run_seed_step("Juegos cacheados", seed_games)
         users_count = _run_seed_step("Usuarios demo", seed_users)
         reviews_count = _run_seed_step("Reseñas demo", seed_reviews)
+        library_count = _run_seed_step("Biblioteca demo", seed_library)
 
         print(
             "Resumen seed -> "
-            f"juegos: {games_count}, usuarios: {users_count}, reseñas: {reviews_count}"
+            f"juegos: {_format_seed_result(games_result)}, "
+            f"usuarios: {users_count}, reseñas: {reviews_count}, biblioteca: {library_count}"
         )
 
 

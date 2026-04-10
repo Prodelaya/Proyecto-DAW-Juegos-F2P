@@ -1,6 +1,114 @@
-<!-- TODO: Implementar panel admin de moderación (extends base.html) -->
-<!-- Variables: reviews (lista de Review) -->
-<!-- Botón "Actualizar catálogo" (POST con CSRF, id="btn-update-catalog", cooldown 30s) -->
-<!-- Tabla de reseñas: columnas Usuario, Juego (enlace), Rating, Texto (truncado 80 chars), Fecha, Acciones -->
-<!-- Acción: formulario POST eliminar con CSRF -->
-<!-- Mensaje "No hay reseñas" si tabla vacía -->
+{% extends 'base.html' %}
+
+{% block title %}Admin | Moderación de reseñas{% endblock %}
+
+{% block content %}
+  <section class="mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-start">
+      <div>
+        <p class="text-muted mb-2">Administración moderada</p>
+        <h1 class="h2 mb-1">Reseñas globales</h1>
+        <p class="text-muted mb-0">
+          Moderá reseñas y refrescá el catálogo sin salirte del flujo SSR principal.
+        </p>
+      </div>
+
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h2 class="h6 mb-2">Actualizar catálogo</h2>
+          {% if refresh_status.last_cached_at %}
+            <p class="small text-muted mb-2">
+              Último cacheo: {{ refresh_status.last_cached_at.strftime('%d/%m/%Y %H:%M:%S') }} UTC.
+            </p>
+          {% else %}
+            <p class="small text-muted mb-2">
+              Todavía no hay juegos cacheados. Podés ejecutar la primera actualización ahora.
+            </p>
+          {% endif %}
+
+          {% if refresh_status.cooldown_active %}
+            <div class="alert alert-warning py-2 px-3 small mb-3" role="alert">
+              Cooldown activo: faltan {{ refresh_status.seconds_remaining }} segundo{% if refresh_status.seconds_remaining != 1 %}s{% endif %}.
+            </div>
+          {% else %}
+            <div class="alert alert-success py-2 px-3 small mb-3" role="alert">
+              Refresh habilitado. Ventana mínima: {{ refresh_status.cooldown_seconds }} segundos.
+            </div>
+          {% endif %}
+
+          <form method="post" action="{{ url_for('admin_bp.update_games') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button
+              id="btn-update-catalog"
+              class="btn btn-primary w-100"
+              type="submit"
+              {% if refresh_status.cooldown_active %}disabled{% endif %}
+            >
+              Actualizar catálogo
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% if has_results %}
+    <section>
+      <div class="table-responsive">
+        <table class="table table-striped align-middle">
+          <thead>
+            <tr>
+              <th scope="col">Autor</th>
+              <th scope="col">Juego</th>
+              <th scope="col">Rating</th>
+              <th scope="col">Fecha</th>
+              <th scope="col">Texto</th>
+              <th scope="col" class="text-end">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for review in reviews %}
+              <tr>
+                <td>
+                  <div class="fw-semibold">{{ review.user.username if review.user else 'Usuario no disponible' }}</div>
+                  <div class="small text-muted">{{ review.user.email if review.user else 'Sin email disponible' }}</div>
+                </td>
+                <td>
+                  {% if review.game %}
+                    <a href="{{ url_for('games_bp.detail', id=review.game.id) }}" class="fw-semibold text-decoration-none">
+                      {{ review.game.title }}
+                    </a>
+                  {% else %}
+                    <span class="text-muted">Juego no disponible</span>
+                  {% endif %}
+                </td>
+                <td><span class="badge text-bg-dark">{{ review.rating }}/5</span></td>
+                <td>
+                  {% set reference_date = review.updated_at or review.created_at %}
+                  {{ reference_date.strftime('%d/%m/%Y %H:%M') if reference_date else 'Sin fecha' }}
+                </td>
+                <td>
+                  <div style="max-width: 420px;">
+                    {{ review.text[:180] }}{% if review.text|length > 180 %}…{% endif %}
+                  </div>
+                </td>
+                <td class="text-end">
+                  <form method="post" action="{{ url_for('admin_bp.delete_review', id=review.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  {% else %}
+    <section>
+      <div class="alert alert-secondary mb-0" role="alert">
+        No hay reseñas para moderar todavía. Cuando los usuarios publiquen contenido, lo vas a ver acá.
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}

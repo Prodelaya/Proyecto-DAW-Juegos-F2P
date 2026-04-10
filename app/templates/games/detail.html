@@ -93,13 +93,138 @@
     </section>
   {% endif %}
 
+  {% if can_manage_private %}
+    <section class="mb-5">
+      <div class="row g-4">
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                  <h2 class="h4 mb-1">Tu biblioteca</h2>
+                  <p class="text-muted mb-0">Contexto privado del juego para tu cuenta.</p>
+                </div>
+                {% if library_entry %}
+                  <span class="badge text-bg-success">En biblioteca</span>
+                {% else %}
+                  <span class="badge text-bg-light border">Todavía no agregado</span>
+                {% endif %}
+              </div>
+
+              {% if library_entry %}
+                <p class="mb-3">
+                  Estado actual:
+                  <strong>{{ library_status_labels.get(library_entry.status, library_entry.status) }}</strong>
+                </p>
+
+                <form method="post" action="{{ url_for('library_bp.update_status', id=library_entry.id) }}" class="d-grid gap-2 mb-2">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="next" value="{{ url_for('games_bp.detail', id=game.id) }}">
+
+                  <label class="form-label mb-0" for="library-status-{{ library_entry.id }}">Cambiar estado</label>
+                  <div class="input-group">
+                    <select class="form-select" id="library-status-{{ library_entry.id }}" name="status">
+                      {% for status in library_status_options %}
+                        <option value="{{ status }}" {% if library_entry.status == status %}selected{% endif %}>
+                          {{ library_status_labels.get(status, status) }}
+                        </option>
+                      {% endfor %}
+                    </select>
+                    <button class="btn btn-primary" type="submit">Guardar</button>
+                  </div>
+                </form>
+
+                <form method="post" action="{{ url_for('library_bp.remove', id=library_entry.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="next" value="{{ url_for('games_bp.detail', id=game.id) }}">
+                  <button class="btn btn-outline-danger" type="submit">Quitar de biblioteca</button>
+                </form>
+              {% else %}
+                <p class="text-muted mb-3">
+                  Agregalo primero a tu biblioteca y después gestioná su estado desde esta misma ficha o desde <a href="{{ url_for('library_bp.my_library') }}">/mi-biblioteca</a>.
+                </p>
+                <form method="post" action="{{ url_for('library_bp.add', game_id=game.id) }}">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button class="btn btn-primary" type="submit">Agregar a mi biblioteca</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                  <h2 class="h4 mb-1">Tu reseña</h2>
+                  <p class="text-muted mb-0">Solo podés tener una reseña por juego.</p>
+                </div>
+                {% if own_review %}
+                  <span class="badge text-bg-dark">{{ own_review.rating }}/5</span>
+                {% else %}
+                  <span class="badge text-bg-light border">Sin reseña propia</span>
+                {% endif %}
+              </div>
+
+              {% if own_review %}
+                <article class="border rounded p-3 bg-body-tertiary mb-3">
+                  <p class="small text-muted mb-2">
+                    Actualizada el {{ own_review.updated_at.strftime('%d/%m/%Y') if own_review.updated_at else own_review.created_at.strftime('%d/%m/%Y') }}
+                  </p>
+                  <p class="mb-0">{{ own_review.text }}</p>
+                </article>
+
+                <div class="d-flex flex-wrap gap-2">
+                  <a class="btn btn-outline-primary" href="{{ url_for('reviews_bp.edit', id=own_review.id) }}">Editar reseña</a>
+                  <form method="post" action="{{ url_for('reviews_bp.delete', id=own_review.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button class="btn btn-outline-danger" type="submit">Eliminar reseña</button>
+                  </form>
+                </div>
+              {% else %}
+                <form method="post" action="{{ url_for('reviews_bp.create', game_id=game.id) }}" novalidate>
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                  <div class="mb-3">
+                    <label class="form-label" for="rating">Valoración</label>
+                    <select class="form-select{% if review_validation_errors.rating %} is-invalid{% endif %}" id="rating" name="rating" required>
+                      <option value="">Seleccioná una puntuación</option>
+                      {% for value in range(1, 6) %}
+                        <option value="{{ value }}" {% if review_form_values.rating == value|string or review_form_values.rating == value %}selected{% endif %}>{{ value }}/5</option>
+                      {% endfor %}
+                    </select>
+                    {% if review_validation_errors.rating %}
+                      <div class="invalid-feedback d-block">{{ review_validation_errors.rating }}</div>
+                    {% endif %}
+                  </div>
+
+                  <div class="mb-3">
+                    <label class="form-label" for="text">Reseña</label>
+                    <textarea class="form-control{% if review_validation_errors.text %} is-invalid{% endif %}" id="text" name="text" rows="5" minlength="10" maxlength="1000" required>{{ review_form_values.text or '' }}</textarea>
+                    <div class="form-text">Escribí entre 10 y 1000 caracteres.</div>
+                    {% if review_validation_errors.text %}
+                      <div class="invalid-feedback d-block">{{ review_validation_errors.text }}</div>
+                    {% endif %}
+                  </div>
+
+                  <button class="btn btn-primary" type="submit">Publicar reseña</button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  {% endif %}
+
   <section>
     <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center mb-3">
       <div>
         <h2 class="h3 mb-1">Reseñas de la comunidad</h2>
-        <p class="text-muted mb-0">Solo lectura pública: sin acciones de auth, CRUD ni biblioteca en este change.</p>
+        <p class="text-muted mb-0">La ficha mantiene el promedio y las reseñas públicas, incluso cuando hay sesión autenticada.</p>
       </div>
-      <span class="badge text-bg-light border">{{ review_summary.count }} reseñas</span>
+      <span class="badge text-bg-light border">{{ reviews|length }} reseñas</span>
     </div>
 
     {% if reviews %}
@@ -120,9 +245,9 @@
         {% endfor %}
       </div>
     {% else %}
-      <div class="alert alert-secondary mb-0" role="alert">
-        Todavía no hay reseñas publicadas para este juego.
-      </div>
-    {% endif %}
+        <div class="alert alert-secondary mb-0" role="alert">
+          Todavía no hay reseñas públicas de la comunidad para este juego.
+        </div>
+      {% endif %}
   </section>
 {% endblock %}

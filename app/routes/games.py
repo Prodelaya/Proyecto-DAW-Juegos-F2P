@@ -1,15 +1,22 @@
 from __future__ import annotations
 
 from flask import Blueprint, render_template, request
+from flask_login import current_user
 from sqlalchemy import case, func, or_
 from sqlalchemy.orm import joinedload
 
 from app.extensions import db
 from app.models.game import Game
+from app.models.library import VALID_STATUSES, UserLibrary
 from app.models.review import Review
 
 
 CATALOG_PER_PAGE = 20
+LIBRARY_STATUS_LABELS = {
+    "want_to_play": "Quiero jugar",
+    "playing": "Jugando",
+    "played": "Jugado",
+}
 ALLOWED_SORTS = {
     "alphabetical": "alphabetical",
     "review_count": "review_count",
@@ -72,6 +79,71 @@ def _distinct_field_values(column):
     return [value for value, in rows]
 
 games_bp = Blueprint('games_bp', __name__)
+
+
+def build_detail_context(
+    game: Game,
+    review_form_values: dict[str, str] | None = None,
+    review_validation_errors: dict[str, str] | None = None,
+):
+    review_count, avg_rating = (
+        db.session.query(func.count(Review.id), func.avg(Review.rating))
+        .filter(Review.game_id == game.id)
+        .one()
+    )
+
+    reviews = (
+        Review.query.options(joinedload(Review.user))
+        .filter(Review.game_id == game.id)
+        .order_by(Review.created_at.desc())
+        .all()
+    )
+
+    own_review = None
+    library_entry = None
+    can_manage_private = current_user.is_authenticated
+
+    if can_manage_private:
+        own_review = Review.query.filter_by(game_id=game.id, user_id=current_user.id).first()
+        library_entry = UserLibrary.query.filter_by(
+            game_id=game.id, user_id=current_user.id
+        ).first()
+
+        if own_review is not None:
+            reviews = [review for review in reviews if review.id != own_review.id]
+
+    screenshots = [
+        screenshot.strip()
+        for screenshot in (game.screenshots or [])
+        if isinstance(screenshot, str) and screenshot.strip()
+    ]
+    requirements = {
+        "os": game.req_os,
+        "processor": game.req_processor,
+        "memory": game.req_memory,
+        "graphics": game.req_graphics,
+        "storage": game.req_storage,
+    }
+    has_requirements = any(requirements.values())
+
+    return {
+        "game": game,
+        "reviews": reviews,
+        "review_summary": {
+            "count": int(review_count or 0),
+            "avg_rating": float(avg_rating) if avg_rating is not None else None,
+        },
+        "screenshots": screenshots,
+        "requirements": requirements,
+        "has_requirements": has_requirements,
+        "own_review": own_review,
+        "library_entry": library_entry,
+        "library_status_options": VALID_STATUSES,
+        "library_status_labels": LIBRARY_STATUS_LABELS,
+        "can_manage_private": can_manage_private,
+        "review_form_values": review_form_values or {"rating": "", "text": ""},
+        "review_validation_errors": review_validation_errors or {},
+    }
 
 
 @games_bp.route('/catalogo')
@@ -161,42 +233,4 @@ def catalog():
 def detail(id):
     game = Game.query.get_or_404(id)
 
-    review_count, avg_rating = (
-        db.session.query(func.count(Review.id), func.avg(Review.rating))
-        .filter(Review.game_id == game.id)
-        .one()
-    )
-
-    reviews = (
-        Review.query.options(joinedload(Review.user))
-        .filter(Review.game_id == game.id)
-        .order_by(Review.created_at.desc())
-        .all()
-    )
-
-    screenshots = [
-        screenshot.strip()
-        for screenshot in (game.screenshots or [])
-        if isinstance(screenshot, str) and screenshot.strip()
-    ]
-    requirements = {
-        "os": game.req_os,
-        "processor": game.req_processor,
-        "memory": game.req_memory,
-        "graphics": game.req_graphics,
-        "storage": game.req_storage,
-    }
-    has_requirements = any(requirements.values())
-
-    return render_template(
-        "games/detail.html",
-        game=game,
-        reviews=reviews,
-        review_summary={
-            "count": int(review_count or 0),
-            "avg_rating": float(avg_rating) if avg_rating is not None else None,
-        },
-        screenshots=screenshots,
-        requirements=requirements,
-        has_requirements=has_requirements,
-    )
+    return render_template("games/detail.html", **build_detail_context(game))

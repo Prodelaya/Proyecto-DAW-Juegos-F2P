@@ -1,6 +1,82 @@
-<!-- TODO: Implementar formulario de edición de reseña (extends base.html) -->
-<!-- Variables: review (objeto Review) -->
-<!-- Formulario POST con CSRF token -->
-<!-- Select rating 1-5 (pre-seleccionado con review.rating) -->
-<!-- Textarea texto (pre-rellenado, minlength=10 maxlength=1000) -->
-<!-- Botón guardar + enlace cancelar (a ficha del juego) -->
+{% extends 'base.html' %}
+
+{% block title %}
+  {% if mode == 'edit' %}
+    Editar reseña | {{ game.title }}
+  {% else %}
+    Reseña | {{ game.title }}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <section class="row justify-content-center">
+    <div class="col-12 col-lg-8 col-xl-7">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body p-4">
+          <div class="mb-4">
+            <p class="text-muted mb-2">Juego</p>
+            <h1 class="h3 mb-1">{{ game.title }}</h1>
+            <p class="mb-0 text-muted">
+              {% if mode == 'edit' %}
+                Actualizá tu reseña manteniendo el contrato SSR explícito del formulario.
+              {% else %}
+                Gestioná tu reseña del juego.
+              {% endif %}
+            </p>
+          </div>
+
+          <form method="post" novalidate>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="mb-3">
+              <label class="form-label" for="rating">Valoración</label>
+              <select
+                class="form-select{% if validation_errors.rating %} is-invalid{% endif %}"
+                id="rating"
+                name="rating"
+                required
+              >
+                <option value="">Seleccioná una puntuación</option>
+                {% for value in range(1, 6) %}
+                  <option
+                    value="{{ value }}"
+                    {% if form_values.rating == value|string or form_values.rating == value %}selected{% endif %}
+                  >
+                    {{ value }}/5
+                  </option>
+                {% endfor %}
+              </select>
+              {% if validation_errors.rating %}
+                <div class="invalid-feedback d-block">{{ validation_errors.rating }}</div>
+              {% endif %}
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label" for="text">Reseña</label>
+              <textarea
+                class="form-control{% if validation_errors.text %} is-invalid{% endif %}"
+                id="text"
+                name="text"
+                rows="7"
+                minlength="10"
+                maxlength="1000"
+                required
+              >{{ form_values.text or '' }}</textarea>
+              <div class="form-text">Tu reseña debe tener entre 10 y 1000 caracteres.</div>
+              {% if validation_errors.text %}
+                <div class="invalid-feedback d-block">{{ validation_errors.text }}</div>
+              {% endif %}
+            </div>
+
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-primary" type="submit">
+                {% if mode == 'edit' %}Guardar cambios{% else %}Guardar reseña{% endif %}
+              </button>
+              <a class="btn btn-outline-secondary" href="{{ cancel_url }}">Cancelar</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

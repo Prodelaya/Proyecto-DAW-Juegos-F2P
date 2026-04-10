@@ -1,6 +1,95 @@
-<!-- TODO: Implementar perfil de usuario (extends base.html) -->
-<!-- Variables: user, review_count, library_count, recent_reviews -->
-<!-- Card con: username, email, fecha de registro (DD/MM/YYYY) -->
-<!-- Estadísticas: conteo de juegos en biblioteca y reseñas escritas -->
-<!-- Últimas reseñas: enlace al juego, rating, texto truncado, fecha -->
-<!-- Mensaje "Aún no has escrito ninguna reseña" si vacío -->
+{% extends 'base.html' %}
+
+{% block title %}Perfil | F2P Catalog{% endblock %}
+
+{% block content %}
+  <section class="row g-4 mb-4">
+    <div class="col-12 col-lg-5">
+      <article class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <p class="text-muted mb-2">Perfil privado</p>
+          <h1 class="h2 mb-1">{{ user.username }}</h1>
+          <p class="text-muted mb-4">{{ user.email }}</p>
+
+          <dl class="row mb-0">
+            <dt class="col-sm-5">Miembro desde</dt>
+            <dd class="col-sm-7">{{ user.created_at.strftime('%d/%m/%Y') if user.created_at else 'No disponible' }}</dd>
+            <dt class="col-sm-5">Rol</dt>
+            <dd class="col-sm-7">{{ 'Administrador' if user.is_admin else 'Usuario' }}</dd>
+          </dl>
+        </div>
+      </article>
+    </div>
+
+    <div class="col-12 col-lg-7">
+      <div class="row g-3">
+        <div class="col-12 col-sm-6">
+          <article class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <p class="text-muted mb-2">Biblioteca</p>
+              <p class="display-6 mb-2">{{ stats.library_count }}</p>
+              <p class="mb-0">Juego{% if stats.library_count != 1 %}s{% endif %} guardado{% if stats.library_count != 1 %}s{% endif %}.</p>
+            </div>
+          </article>
+        </div>
+        <div class="col-12 col-sm-6">
+          <article class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+              <p class="text-muted mb-2">Reseñas</p>
+              <p class="display-6 mb-2">{{ stats.review_count }}</p>
+              <p class="mb-0">Reseña{% if stats.review_count != 1 %}s{% endif %} publicada{% if stats.review_count != 1 %}s{% endif %}.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+
+      <article class="card border-0 shadow-sm mt-3">
+        <div class="card-body">
+          <h2 class="h5 mb-3">Accesos directos</h2>
+          <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-primary" href="{{ links.library }}">Ir a mi biblioteca</a>
+            <a class="btn btn-outline-primary" href="{{ links.catalog }}">Explorar catálogo</a>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center mb-3">
+      <div>
+        <h2 class="h3 mb-1">Tus reseñas recientes</h2>
+        <p class="text-muted mb-0">Resumen simple de tu actividad más reciente.</p>
+      </div>
+      <span class="badge text-bg-light border">{{ recent_reviews|length }} visibles</span>
+    </div>
+
+    {% if recent_reviews %}
+      <div class="vstack gap-3">
+        {% for review in recent_reviews %}
+          <article class="card border-0 shadow-sm">
+            <div class="card-body">
+              <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-2">
+                <div>
+                  <h3 class="h5 mb-1">{{ review.game.title if review.game else 'Juego no disponible' }}</h3>
+                  <p class="small text-muted mb-0">
+                    Actualizada el {{ review.updated_at.strftime('%d/%m/%Y') if review.updated_at else review.created_at.strftime('%d/%m/%Y') }}
+                  </p>
+                </div>
+                <span class="badge text-bg-dark align-self-start">{{ review.rating }}/5</span>
+              </div>
+              <p class="mb-3">{{ review.text[:220] }}{% if review.text|length > 220 %}…{% endif %}</p>
+              {% if review.game %}
+                <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('games_bp.detail', id=review.game.id) }}">Volver a la ficha</a>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="alert alert-secondary mb-0" role="alert">
+        Aún no escribiste ninguna reseña. Podés empezar desde la ficha de cualquier juego del catálogo.
+      </div>
+    {% endif %}
+  </section>
+{% endblock %}
