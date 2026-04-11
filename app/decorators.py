@@ -3,7 +3,7 @@
 
 from functools import wraps
 
-from flask import flash, redirect, url_for
+from flask import flash, redirect, request, url_for
 from flask_login import current_user
 
 
@@ -15,6 +15,10 @@ def admin_required(f):
 
     @wraps(f)
     def decorated_function(*args, **kwargs):
+        if not current_user.is_authenticated:
+            next_target = request.full_path if request.query_string else request.path
+            return redirect(url_for("auth_bp.login", next=next_target))
+
         if not getattr(current_user, "is_admin", False):
             flash("No tenés permisos para acceder a esa sección.", "error")
             return redirect(url_for("main_bp.home"))

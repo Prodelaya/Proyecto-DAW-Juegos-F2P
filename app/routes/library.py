@@ -11,6 +11,7 @@ from urllib.parse import urlsplit
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
 from app.extensions import db
@@ -81,8 +82,18 @@ def add(game_id):
         return redirect(url_for("games_bp.detail", id=game.id))
 
     entry = UserLibrary(user_id=current_user.id, game_id=game.id, status="want_to_play")
-    db.session.add(entry)
-    db.session.commit()
+
+    try:
+        db.session.add(entry)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        flash("Ese juego ya está en tu biblioteca.", "error")
+        return redirect(url_for("games_bp.detail", id=game.id))
+    except (ValueError, SQLAlchemyError):
+        db.session.rollback()
+        flash("No pudimos agregar el juego a tu biblioteca. Probá nuevamente en unos segundos.", "error")
+        return redirect(url_for("games_bp.detail", id=game.id))
 
     flash("El juego se agregó a tu biblioteca en “Quiero jugar”.", "success")
     return redirect(url_for("games_bp.detail", id=game.id))
@@ -101,8 +112,13 @@ def update_status(id):
         flash("El estado enviado no es válido. Usá want_to_play, playing o played.", "error")
         return redirect(next_url)
 
-    entry.status = new_status
-    db.session.commit()
+    try:
+        entry.status = new_status
+        db.session.commit()
+    except (ValueError, SQLAlchemyError):
+        db.session.rollback()
+        flash("No pudimos actualizar el estado de tu biblioteca. Probá nuevamente.", "error")
+        return redirect(next_url)
 
     flash("El estado de tu biblioteca fue actualizado correctamente.", "success")
     return redirect(next_url)
@@ -118,8 +134,13 @@ def remove(id):
     next_url = _safe_return_url(request.form.get("next"))
     game_title = entry.game.title if entry.game is not None else "El juego"
 
-    db.session.delete(entry)
-    db.session.commit()
+    try:
+        db.session.delete(entry)
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        flash("No pudimos quitar el juego de tu biblioteca. Probá nuevamente.", "error")
+        return redirect(next_url)
 
     flash(f"{game_title} fue quitado de tu biblioteca.", "success")
     return redirect(next_url)

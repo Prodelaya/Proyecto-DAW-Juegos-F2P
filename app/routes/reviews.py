@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from app.extensions import db
 from app.models.game import Game
@@ -105,8 +106,18 @@ def create(game_id):
         rating=rating,
         text=normalized_text,
     )
-    db.session.add(review)
-    db.session.commit()
+
+    try:
+        db.session.add(review)
+        db.session.commit()
+    except IntegrityError:
+        db.session.rollback()
+        flash("Ya tenés una reseña para este juego. Podés editarla o eliminarla abajo.", "error")
+        return redirect(url_for("games_bp.detail", id=game.id))
+    except (ValueError, SQLAlchemyError):
+        db.session.rollback()
+        flash("No pudimos publicar tu reseña. Probá nuevamente en unos segundos.", "error")
+        return redirect(url_for("games_bp.detail", id=game.id))
 
     flash("Tu reseña fue publicada correctamente.", "success")
     return redirect(url_for("games_bp.detail", id=game.id))
@@ -131,11 +142,17 @@ def edit(id):
         request.form.get("rating"), request.form.get("text")
     )
     if validation_errors:
+        flash("No pudimos actualizar tu reseña. Revisá los errores marcados y volvé a intentar.", "error")
         return _render_review_form(review, form_values, validation_errors)
 
-    review.rating = rating
-    review.text = normalized_text
-    db.session.commit()
+    try:
+        review.rating = rating
+        review.text = normalized_text
+        db.session.commit()
+    except (ValueError, SQLAlchemyError):
+        db.session.rollback()
+        flash("No pudimos actualizar tu reseña. Probá nuevamente en unos segundos.", "error")
+        return _render_review_form(review, form_values, validation_errors)
 
     flash("Tu reseña fue actualizada correctamente.", "success")
     return redirect(url_for("games_bp.detail", id=review.game_id))
@@ -150,8 +167,14 @@ def delete(id):
         return owner_redirect
 
     game_id = review.game_id
-    db.session.delete(review)
-    db.session.commit()
+
+    try:
+        db.session.delete(review)
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        flash("No pudimos eliminar tu reseña. Probá nuevamente en unos segundos.", "error")
+        return redirect(url_for("games_bp.detail", id=game_id))
 
     flash("Tu reseña fue eliminada correctamente.", "success")
     return redirect(url_for("games_bp.detail", id=game_id))

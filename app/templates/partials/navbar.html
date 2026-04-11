@@ -29,7 +29,7 @@
             Sesión iniciada como <strong>{{ current_user.username }}</strong>
           </span>
           <form method="post" action="{{ url_for('auth_bp.logout') }}" class="m-0">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% include 'partials/csrf_input.html' %}
             <button class="btn btn-outline-light btn-sm" type="submit">Cerrar sesión</button>
           </form>
         </div>

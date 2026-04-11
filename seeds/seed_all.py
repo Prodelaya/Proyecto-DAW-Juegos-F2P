@@ -33,7 +33,7 @@ def _run_seed_step(label, callback):
     except Exception as exc:  # pragma: no cover - flujo manual de seed
         db.session.rollback()
         print(f"{label}: ERROR ({exc})")
-        return 0
+        return {"processed": 0, "failed": 1}
 
 
 def seed_all():

@@ -3,6 +3,8 @@ from __future__ import annotations
 import random
 from datetime import datetime, timedelta
 
+from flask import current_app
+
 from app.extensions import db
 from app.models.game import Game
 from app.models.review import Review
@@ -36,16 +38,16 @@ REVIEW_TEXTS = [
 RATING_WEIGHTS = [1, 2, 3, 3, 2]  # pesos para ratings 1, 2, 3, 4, 5
 
 
-def seed_reviews():
+def seed_reviews() -> dict[str, int]:
     """Genera reseñas demo recientes e idempotentes para soportar la lectura pública."""
     demo_users = User.query.filter_by(is_admin=False).order_by(User.id.asc()).all()
     candidate_games = Game.query.order_by(Game.release_date.desc(), Game.id.asc()).limit(24).all()
 
     if not demo_users or not candidate_games:
-        return 0
+        return {"processed": 0, "failed": 0}
 
     rng = random.Random(20260407)
-    created_or_updated = 0
+    summary = {"processed": 0, "failed": 0}
     now = datetime.utcnow()
 
     for user_index, user in enumerate(demo_users):
@@ -56,7 +58,6 @@ def seed_reviews():
         ]
 
         for position, game in enumerate(assigned_games):
-            review = Review.query.filter_by(user_id=user.id, game_id=game.id).first()
             rating = rng.choices([1, 2, 3, 4, 5], weights=RATING_WEIGHTS, k=1)[0]
             text = REVIEW_TEXTS[(user_index * len(assigned_games) + position) % len(REVIEW_TEXTS)]
             created_at = now - timedelta(
@@ -65,23 +66,35 @@ def seed_reviews():
                 minutes=(user_index * 11 + position * 7) % 60,
             )
 
-            if review is None:
-                review = Review(
-                    user_id=user.id,
-                    game_id=game.id,
-                    rating=rating,
-                    text=text,
-                    created_at=created_at,
-                    updated_at=created_at,
+            try:
+                review = Review.query.filter_by(user_id=user.id, game_id=game.id).first()
+
+                if review is None:
+                    review = Review(
+                        user_id=user.id,
+                        game_id=game.id,
+                        rating=rating,
+                        text=text,
+                        created_at=created_at,
+                        updated_at=created_at,
+                    )
+                    db.session.add(review)
+                else:
+                    review.rating = rating
+                    review.text = text
+                    review.created_at = created_at
+                    review.updated_at = created_at
+
+                db.session.commit()
+                summary["processed"] += 1
+            except Exception as exc:  # pragma: no cover - robustez del seed manual
+                db.session.rollback()
+                summary["failed"] += 1
+                current_app.logger.error(
+                    "No se pudo seedear la reseña user_id=%s game_id=%s: %s",
+                    user.id,
+                    game.id,
+                    exc,
                 )
-                db.session.add(review)
-            else:
-                review.rating = rating
-                review.text = text
-                review.created_at = created_at
-                review.updated_at = created_at
 
-            created_or_updated += 1
-
-    db.session.commit()
-    return created_or_updated
+    return summary

@@ -53,6 +53,58 @@ def _review_aggregates_subquery():
     )
 
 
+def _sanitize_screenshots(raw_screenshots) -> list[str]:
+    if not isinstance(raw_screenshots, list):
+        return []
+
+    screenshots: list[str] = []
+    seen: set[str] = set()
+    for screenshot in raw_screenshots:
+        if not isinstance(screenshot, str):
+            continue
+
+        normalized = screenshot.strip()
+        if not normalized or normalized in seen:
+            continue
+
+        seen.add(normalized)
+        screenshots.append(normalized)
+
+    return screenshots
+
+
+def _load_public_reviews(game_id: int, own_review_id: int | None = None) -> list[Review]:
+    reviews = (
+        Review.query.options(joinedload(Review.user))
+        .filter(Review.game_id == game_id)
+        .order_by(Review.created_at.desc())
+        .all()
+    )
+
+    visible_reviews: list[Review] = []
+    for review in reviews:
+        if review.user is None:
+            continue
+        if own_review_id is not None and review.id == own_review_id:
+            continue
+        visible_reviews.append(review)
+
+    return visible_reviews
+
+
+def _paginate_catalog(query, requested_page: int):
+    pagination = query.paginate(
+        page=requested_page, per_page=CATALOG_PER_PAGE, error_out=False
+    )
+
+    if requested_page > 1 and pagination.total > 0 and not pagination.items and pagination.pages:
+        return query.paginate(
+            page=pagination.pages, per_page=CATALOG_PER_PAGE, error_out=False
+        )
+
+    return pagination
+
+
 def _serialize_catalog_game(game, review_count, avg_rating):
     return {
         "id": game.id,
@@ -92,13 +144,6 @@ def build_detail_context(
         .one()
     )
 
-    reviews = (
-        Review.query.options(joinedload(Review.user))
-        .filter(Review.game_id == game.id)
-        .order_by(Review.created_at.desc())
-        .all()
-    )
-
     own_review = None
     library_entry = None
     can_manage_private = current_user.is_authenticated
@@ -109,14 +154,8 @@ def build_detail_context(
             game_id=game.id, user_id=current_user.id
         ).first()
 
-        if own_review is not None:
-            reviews = [review for review in reviews if review.id != own_review.id]
-
-    screenshots = [
-        screenshot.strip()
-        for screenshot in (game.screenshots or [])
-        if isinstance(screenshot, str) and screenshot.strip()
-    ]
+    reviews = _load_public_reviews(game.id, own_review.id if own_review is not None else None)
+    screenshots = _sanitize_screenshots(game.screenshots)
     requirements = {
         "os": game.req_os,
         "processor": game.req_processor,
@@ -204,9 +243,8 @@ def catalog():
     else:
         query = query.order_by(Game.title.asc(), Game.release_date.desc())
 
-    pagination = query.paginate(
-        page=current_filters["page"], per_page=CATALOG_PER_PAGE, error_out=False
-    )
+    pagination = _paginate_catalog(query, current_filters["page"])
+    current_filters["page"] = pagination.page
 
     games = [
         _serialize_catalog_game(game, review_count, avg_rating)

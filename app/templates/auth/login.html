@@ -19,7 +19,7 @@
           {% endif %}
 
           <form method="post" novalidate>
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% include 'partials/csrf_input.html' %}
             <input type="hidden" name="next" value="{{ next_value }}">
 
             <div class="mb-3">

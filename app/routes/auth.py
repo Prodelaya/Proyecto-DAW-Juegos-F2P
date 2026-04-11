@@ -46,6 +46,14 @@ def _resolve_next_target() -> str:
     return url_for("main_bp.home")
 
 
+def _resolve_next_field_value() -> str:
+    requested_next = request.form.get("next") or request.args.get("next")
+    if _is_safe_next_target(requested_next):
+        return requested_next
+
+    return ""
+
+
 def _build_register_context(form_data: dict[str, str], errors: dict[str, str]):
     return {
         "form_data": form_data,
@@ -157,7 +165,7 @@ def login():
         return render_template(
             "auth/login.html",
             **_build_login_context(
-                form_data={}, errors={}, general_error=None, next_value=_resolve_next_target()
+                form_data={}, errors={}, general_error=None, next_value=_resolve_next_field_value()
             ),
         )
 
@@ -167,7 +175,7 @@ def login():
     password = request.form.get("password") or ""
     errors: dict[str, str] = {}
     general_error = None
-    next_value = request.form.get("next") or request.args.get("next") or ""
+    next_value = _resolve_next_field_value()
 
     if not form_data["email"]:
         errors["email"] = "El email es obligatorio."

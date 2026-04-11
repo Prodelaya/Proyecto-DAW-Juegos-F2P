@@ -37,7 +37,7 @@
           {% endif %}
 
           <form method="post" action="{{ url_for('admin_bp.update_games') }}">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% include 'partials/csrf_input.html' %}
             <button
               id="btn-update-catalog"
               class="btn btn-primary w-100"
@@ -94,7 +94,7 @@
                 </td>
                 <td class="text-end">
                   <form method="post" action="{{ url_for('admin_bp.delete_review', id=review.id) }}">
-                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    {% include 'partials/csrf_input.html' %}
                     <button class="btn btn-sm btn-outline-danger" type="submit">Eliminar</button>
                   </form>
                 </td>

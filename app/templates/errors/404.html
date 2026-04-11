@@ -1,3 +1,25 @@
-<!-- TODO: Implementar página 404 (extends base.html) -->
-<!-- Título "404 — Página no encontrada" -->
-<!-- Mensaje descriptivo + enlace a inicio -->
+{% extends "base.html" %}
+
+{% block title %}404 — Página no encontrada{% endblock %}
+
+{% block content %}
+  <section class="py-5">
+    <div class="row justify-content-center">
+      <div class="col-lg-8 col-xl-6">
+        <div class="card shadow-sm border-0">
+          <div class="card-body p-4 p-md-5 text-center">
+            <span class="badge text-bg-secondary mb-3">Error 404</span>
+            <h1 class="h2 mb-3">No encontramos la página que buscabas</h1>
+            <p class="text-body-secondary mb-4">
+              Puede que la URL esté mal escrita o que el contenido ya no exista. Podés volver al inicio o seguir navegando por el catálogo.
+            </p>
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+              <a class="btn btn-primary" href="{{ url_for('main_bp.home') }}">Ir al inicio</a>
+              <a class="btn btn-outline-secondary" href="{{ url_for('games_bp.catalog') }}">Ver catálogo</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+{% endblock %}

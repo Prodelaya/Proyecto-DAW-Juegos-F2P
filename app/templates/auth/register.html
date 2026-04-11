@@ -13,7 +13,7 @@
           </div>
 
           <form method="post" novalidate>
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% include 'partials/csrf_input.html' %}
 
             <div class="row g-3">
               <div class="col-12">

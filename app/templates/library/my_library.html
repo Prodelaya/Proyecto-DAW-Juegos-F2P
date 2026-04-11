@@ -82,7 +82,7 @@
                   <div class="row g-2 mt-auto">
                     <div class="col-12 col-lg-7">
                       <form method="post" action="{{ url_for('library_bp.update_status', id=entry.id) }}" class="d-grid gap-2">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% include 'partials/csrf_input.html' %}
                         <input
                           type="hidden"
                           name="next"
@@ -109,7 +109,7 @@
                     </div>
                     <div class="col-12 col-lg-5">
                       <form method="post" action="{{ url_for('library_bp.remove', id=entry.id) }}" class="h-100 d-grid">
-                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        {% include 'partials/csrf_input.html' %}
                         <input
                           type="hidden"
                           name="next"

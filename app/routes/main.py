@@ -27,6 +27,17 @@ def _serialize_featured_game(game, review_count, avg_rating):
         "avg_rating": float(avg_rating) if avg_rating is not None else None,
     }
 
+
+def _fallback_featured_rows():
+    return [
+        (game, 0, None)
+        for game in Game.query.order_by(
+            Game.release_date.desc(), Game.title.asc()
+        )
+        .limit(FEATURED_LIMIT)
+        .all()
+    ]
+
 main_bp = Blueprint('main_bp', __name__)
 
 
@@ -64,17 +75,11 @@ def home():
 
     featured_fallback_message = None
     if not featured_rows:
-        featured_fallback_message = (
-            "Todavía no hay reseñas recientes para destacar juegos. Te mostramos los más nuevos del catálogo local."
-        )
-        featured_rows = [
-            (game, 0, None)
-            for game in Game.query.order_by(
-                Game.release_date.desc(), Game.title.asc()
+        featured_rows = _fallback_featured_rows()
+        if featured_rows:
+            featured_fallback_message = (
+                "Todavía no hay reseñas recientes para destacar juegos. Te mostramos los más nuevos del catálogo local."
             )
-            .limit(FEATURED_LIMIT)
-            .all()
-        ]
 
     featured_games = [
         _serialize_featured_game(game, review_count, avg_rating)

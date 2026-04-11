@@ -15,9 +15,9 @@ DEMO_USERS = [
 ]
 
 
-def seed_users():
+def seed_users() -> dict[str, int]:
     """Crea o actualiza usuarios demo y admin de forma idempotente."""
-    created_or_updated = 0
+    summary = {"processed": 0, "failed": 0}
 
     admin_payload = {
         "username": "admin",
@@ -27,20 +27,30 @@ def seed_users():
     }
 
     for payload in [admin_payload, *DEMO_USERS]:
-        user = User.query.filter_by(email=payload["email"].strip().lower()).first()
-        if user is None:
-            user = User(
-                username=payload["username"],
-                email=payload["email"],
-                is_admin=payload.get("is_admin", False),
+        email = payload["email"].strip().lower()
+
+        try:
+            user = User.query.filter_by(email=email).first()
+            if user is None:
+                user = User(
+                    username=payload["username"],
+                    email=email,
+                    is_admin=payload.get("is_admin", False),
+                )
+                db.session.add(user)
+
+            user.username = payload["username"]
+            user.email = email
+            user.is_admin = payload.get("is_admin", False)
+            user.set_password(payload["password"])
+
+            db.session.commit()
+            summary["processed"] += 1
+        except Exception as exc:  # pragma: no cover - robustez del seed manual
+            db.session.rollback()
+            summary["failed"] += 1
+            current_app.logger.error(
+                "No se pudo seedear el usuario email=%s: %s", email, exc
             )
-            db.session.add(user)
 
-        user.username = payload["username"]
-        user.email = payload["email"]
-        user.is_admin = payload.get("is_admin", False)
-        user.set_password(payload["password"])
-        created_or_updated += 1
-
-    db.session.commit()
-    return created_or_updated
+    return summary

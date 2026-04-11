@@ -11,6 +11,7 @@ from datetime import datetime
 from flask import Blueprint, flash, redirect, render_template, url_for
 from flask_login import login_required
 from sqlalchemy import func
+from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 
 from app.decorators import admin_required
@@ -72,8 +73,13 @@ def delete_review(id):
     author_name = review.user.username if review.user is not None else f"usuario #{review.user_id}"
     game_title = review.game.title if review.game is not None else f"juego #{review.game_id}"
 
-    db.session.delete(review)
-    db.session.commit()
+    try:
+        db.session.delete(review)
+        db.session.commit()
+    except SQLAlchemyError:
+        db.session.rollback()
+        flash("No pudimos eliminar la reseña seleccionada. Probá nuevamente.", "error")
+        return redirect(url_for("admin_bp.reviews"))
 
     flash(
         f"La reseña de {author_name} sobre {game_title} fue eliminada correctamente.",
@@ -95,7 +101,13 @@ def update_games():
         )
         return redirect(url_for("admin_bp.reviews"))
 
-    summary = seed_games()
+    try:
+        summary = seed_games()
+    except Exception:
+        db.session.rollback()
+        flash("No pudimos actualizar el catálogo en este momento. Probá nuevamente.", "error")
+        return redirect(url_for("admin_bp.reviews"))
+
     processed = summary.get("processed", 0)
     failed = summary.get("failed", 0)
 
