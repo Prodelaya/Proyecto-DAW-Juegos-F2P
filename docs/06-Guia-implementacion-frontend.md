@@ -4,6 +4,8 @@
 
 > Esta guía existe para trabajar el frontend de este proyecto **sin romper el backend, Jinja, formularios ni Docker**.
 
+> **Documento que debes seguir siempre:** `docs/06-Guia-implementacion-frontend.md`
+
 ## 1. Qué es lo que YA está construido
 
 Hoy el proyecto ya tiene:
