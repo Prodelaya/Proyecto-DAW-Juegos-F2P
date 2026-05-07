@@ -26,8 +26,14 @@
       {% if current_user.is_authenticated %}
         <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-3">
           <span class="navbar-text text-white">
-            Sesión iniciada como <strong>{{ current_user.username }}</strong>
+            <a class="fw-semibold text-decoration-none text-success" href="{{ url_for('profile_bp.index') }}">
+              {{ current_user.username }}
+            </a>
           </span>
+          <a class="btn btn-outline-light btn-sm" href="{{ url_for('library_bp.my_library') }}">Mi biblioteca</a>
+          {% if current_user.is_admin %}
+            <a class="btn btn-outline-light btn-sm" href="{{ url_for('admin_bp.reviews') }}">Administración</a>
+          {% endif %}
           <form method="post" action="{{ url_for('auth_bp.logout') }}" class="m-0">
             {% include 'partials/csrf_input.html' %}
             <button class="btn btn-outline-light btn-sm" type="submit">Cerrar sesión</button>

@@ -43,7 +43,7 @@ def _get_owned_entry_or_redirect(entry_id: int):
     if entry.user_id == current_user.id:
         return entry, None
 
-    flash("No podés gestionar una entrada de biblioteca ajena.", "error")
+    flash("No puedes gestionar una entrada de biblioteca ajena.", "error")
     return None, redirect(url_for("library_bp.my_library"))
 
 
@@ -92,7 +92,7 @@ def add(game_id):
         return redirect(url_for("games_bp.detail", id=game.id))
     except (ValueError, SQLAlchemyError):
         db.session.rollback()
-        flash("No pudimos agregar el juego a tu biblioteca. Probá nuevamente en unos segundos.", "error")
+        flash("No hemos podido añadir el juego a tu biblioteca. Inténtalo de nuevo en unos segundos.", "error")
         return redirect(url_for("games_bp.detail", id=game.id))
 
     flash("El juego se agregó a tu biblioteca en “Quiero jugar”.", "success")
@@ -109,7 +109,7 @@ def update_status(id):
     next_url = _safe_return_url(request.form.get("next"))
     new_status = (request.form.get("status") or "").strip()
     if new_status not in VALID_STATUSES:
-        flash("El estado enviado no es válido. Usá want_to_play, playing o played.", "error")
+        flash("El estado enviado no es válido. Usa want_to_play, playing o played.", "error")
         return redirect(next_url)
 
     try:
@@ -117,7 +117,7 @@ def update_status(id):
         db.session.commit()
     except (ValueError, SQLAlchemyError):
         db.session.rollback()
-        flash("No pudimos actualizar el estado de tu biblioteca. Probá nuevamente.", "error")
+        flash("No hemos podido actualizar el estado de tu biblioteca. Inténtalo de nuevo.", "error")
         return redirect(next_url)
 
     flash("El estado de tu biblioteca fue actualizado correctamente.", "success")
@@ -139,7 +139,7 @@ def remove(id):
         db.session.commit()
     except SQLAlchemyError:
         db.session.rollback()
-        flash("No pudimos quitar el juego de tu biblioteca. Probá nuevamente.", "error")
+        flash("No hemos podido quitar el juego de tu biblioteca. Inténtalo de nuevo.", "error")
         return redirect(next_url)
 
     flash(f"{game_title} fue quitado de tu biblioteca.", "success")

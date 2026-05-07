@@ -9,7 +9,7 @@
         <p class="text-muted mb-2">Administración moderada</p>
         <h1 class="h2 mb-1">Reseñas globales</h1>
         <p class="text-muted mb-0">
-          Moderá reseñas y refrescá el catálogo sin salirte del flujo SSR principal.
+          Modera reseñas y actualiza el catálogo sin salir del flujo SSR principal.
         </p>
       </div>
 
@@ -107,8 +107,19 @@
   {% else %}
     <section>
       <div class="alert alert-secondary mb-0" role="alert">
-        No hay reseñas para moderar todavía. Cuando los usuarios publiquen contenido, lo vas a ver acá.
+        No hay reseñas para moderar todavía. Cuando los usuarios publiquen contenido, lo verás aquí.
       </div>
     </section>
   {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    const updateCatalogButton = document.getElementById('btn-update-catalog');
+
+    updateCatalogButton?.closest('form')?.addEventListener('submit', () => {
+      updateCatalogButton.disabled = true;
+      updateCatalogButton.textContent = 'Actualizando catálogo...';
+    });
+  </script>
 {% endblock %}

@@ -100,7 +100,7 @@ def register():
     if not form_data["email"]:
         errors["email"] = "El email es obligatorio."
     elif not EMAIL_PATTERN.fullmatch(form_data["email"]):
-        errors["email"] = "Ingresá un email válido."
+        errors["email"] = "Introduce un email válido."
 
     if not password:
         errors["password"] = "La contraseña es obligatoria."
@@ -108,7 +108,7 @@ def register():
         errors["password"] = "La contraseña debe tener al menos 8 caracteres."
 
     if not confirm_password:
-        errors["confirm_password"] = "Tenés que confirmar la contraseña."
+        errors["confirm_password"] = "Debes confirmar la contraseña."
     elif password != confirm_password:
         errors["confirm_password"] = "La confirmación no coincide con la contraseña."
 
@@ -146,13 +146,13 @@ def register():
             errors["email"] = "Ese email ya está registrado."
 
         if not errors:
-            flash("No pudimos completar el registro. Probá nuevamente.", "error")
+            flash("No hemos podido completar el registro. Inténtalo de nuevo.", "error")
 
         return render_template(
             "auth/register.html", **_build_register_context(form_data=form_data, errors=errors)
         )
 
-    flash("Tu cuenta fue creada. Ahora podés iniciar sesión.", "success")
+    flash("Tu cuenta se ha creado. Ahora puedes iniciar sesión.", "success")
     return redirect(url_for("auth_bp.login"))
 
 
@@ -180,7 +180,7 @@ def login():
     if not form_data["email"]:
         errors["email"] = "El email es obligatorio."
     elif not EMAIL_PATTERN.fullmatch(form_data["email"]):
-        errors["email"] = "Ingresá un email válido."
+        errors["email"] = "Introduce un email válido."
 
     if not password:
         errors["password"] = "La contraseña es obligatoria."
@@ -198,7 +198,7 @@ def login():
 
     user = User.query.filter_by(email=form_data["email"]).first()
     if user is None or not user.check_password(password):
-        general_error = "Credenciales inválidas. Verificá tus datos e intentá nuevamente."
+        general_error = "Credenciales no válidas. Verifica tus datos e inténtalo de nuevo."
         return render_template(
             "auth/login.html",
             **_build_login_context(
@@ -218,5 +218,5 @@ def login():
 @login_required
 def logout():
     logout_user()
-    flash("Cerraste sesión correctamente.", "success")
+    flash("Has cerrado sesión correctamente.", "success")
     return redirect(url_for("main_bp.home"))

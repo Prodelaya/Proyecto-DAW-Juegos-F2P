@@ -1,29 +1,30 @@
-/* Tema Gaming Estilo Steam */
-/* Paleta de colores inspirada en Steam */
+/* Tema gaming oscuro sobre Bootstrap.
+   Mantener este archivo acotado: no redefinir layouts globales como .container
+   ni pisar componentes semánticos de Bootstrap como .badge de forma genérica. */
 
 :root {
   --steam-dark: #1b2838;
   --steam-darker: #0e141b;
   --steam-blue: #66c0f4;
   --steam-green: #4c6b22;
+  --steam-green-hover: #5a8f2a;
   --steam-grey: #c7d5e0;
   --steam-light-grey: #8f98a0;
 }
 
-/* === Estilos base === */
+/* === Base === */
 body {
   background-color: var(--steam-dark) !important;
   color: var(--steam-grey);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.container {
-  background-color: var(--steam-darker);
-  border-radius: 8px;
-  padding: 20px;
-  margin-top: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+a {
+  color: var(--steam-blue);
+}
+
+a:hover {
+  color: #9bd4f8;
 }
 
 /* === Navbar === */
@@ -34,106 +35,128 @@ body {
 
 .navbar-brand {
   color: var(--steam-blue) !important;
-  font-weight: bold;
+  font-weight: 700;
 }
 
-.nav-link {
-  color: var(--steam-grey) !important;
+.navbar-dark .navbar-nav .nav-link,
+.navbar-dark .navbar-text {
+  color: var(--steam-grey);
 }
 
-.nav-link:hover {
-  color: var(--steam-blue) !important;
-}
-
-.btn-outline-light {
-  border-color: var(--steam-blue);
+.navbar-dark .navbar-nav .nav-link:hover,
+.navbar-dark .navbar-nav .nav-link:focus {
   color: var(--steam-blue);
 }
 
-.btn-outline-light:hover {
-  background-color: var(--steam-blue);
-  border-color: var(--steam-blue);
-  color: var(--steam-darker);
-}
-
+/* === Botones principales del tema === */
 .btn-primary {
   background-color: var(--steam-green);
   border-color: var(--steam-green);
 }
 
-.btn-primary:hover {
-  background-color: #5a8f2a;
-  border-color: #5a8f2a;
+.btn-primary:hover,
+.btn-primary:focus {
+  background-color: var(--steam-green-hover);
+  border-color: var(--steam-green-hover);
 }
 
-/* === Game Cards === */
-.card {
-  background-color: var(--steam-dark);
-  border: 1px solid var(--steam-light-grey);
-  color: var(--steam-grey);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
-}
-
-.card-img-top {
-  border-bottom: 1px solid var(--steam-light-grey);
-}
-
-.card-title {
-  color: var(--steam-blue);
-}
-
-.btn-outline-primary {
+.btn-outline-primary,
+.btn-outline-light {
   border-color: var(--steam-blue);
   color: var(--steam-blue);
 }
 
-.btn-outline-primary:hover {
+.btn-outline-primary:hover,
+.btn-outline-primary:focus,
+.btn-outline-light:hover,
+.btn-outline-light:focus {
   background-color: var(--steam-blue);
   border-color: var(--steam-blue);
   color: var(--steam-darker);
 }
 
-/* === Badges === */
-.badge {
-  background-color: var(--steam-blue) !important;
+.btn {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease,
+    box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.badge.text-bg-secondary {
-  background-color: var(--steam-light-grey) !important;
-  color: var(--steam-darker) !important;
-}
-
-/* === Formularios === */
-.form-control, .form-select {
-  background-color: var(--steam-dark);
-  border: 1px solid var(--steam-light-grey);
+/* === Superficies oscuras dentro del contenido principal === */
+main .card,
+.card.bg-dark {
+  background-color: var(--steam-darker) !important;
+  border-color: rgba(102, 192, 244, 0.25) !important;
   color: var(--steam-grey);
 }
 
-.form-control:focus, .form-select:focus {
-  background-color: var(--steam-dark);
+main .card .card-footer,
+.card.bg-dark .card-footer {
+  background-color: var(--steam-darker) !important;
+}
+
+main .card .card-title,
+main .card h1,
+main .card h2,
+main .card h3,
+main .card h4,
+main .card h5,
+main .card h6,
+.card.bg-dark .card-title,
+.card.bg-dark h1,
+.card.bg-dark h2,
+.card.bg-dark h3,
+.card.bg-dark h4,
+.card.bg-dark h5,
+.card.bg-dark h6 {
+  color: #fff;
+}
+
+main .card:hover,
+.card.bg-dark:hover,
+.hero-section:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+main .text-muted,
+main .text-body-secondary {
+  color: var(--steam-light-grey) !important;
+}
+
+main .alert-secondary,
+main .alert-warning {
+  background-color: var(--steam-darker);
+  border-color: rgba(102, 192, 244, 0.25);
+  color: var(--steam-grey);
+}
+
+/* === Formularios === */
+.form-control,
+.form-select {
+  background-color: var(--steam-darker);
+  border-color: var(--steam-light-grey);
+  color: var(--steam-grey);
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--steam-darker);
   border-color: var(--steam-blue);
   color: var(--steam-grey);
   box-shadow: 0 0 0 0.2rem rgba(102, 192, 244, 0.25);
 }
 
-.btn {
-  transition: all 0.2s;
+.form-control::placeholder {
+  color: var(--steam-light-grey);
 }
 
 /* === Paginación === */
 .page-link {
-  background-color: var(--steam-dark);
+  background-color: var(--steam-darker);
   border-color: var(--steam-light-grey);
   color: var(--steam-grey);
 }
 
-.page-link:hover {
+.page-link:hover,
+.page-link:focus {
   background-color: var(--steam-blue);
   border-color: var(--steam-blue);
   color: var(--steam-darker);
@@ -142,33 +165,21 @@ body {
 .page-item.active .page-link {
   background-color: var(--steam-blue);
   border-color: var(--steam-blue);
+  color: var(--steam-darker);
 }
 
-/* === Alertas === */
-.alert {
-  background-color: var(--steam-darker);
-  border: 1px solid var(--steam-light-grey);
-  color: var(--steam-grey);
+/* === Páginas específicas === */
+.hero-section {
+  background: linear-gradient(135deg, var(--steam-dark) 0%, var(--steam-darker) 100%);
+  transition: box-shadow 0.2s ease;
 }
 
-.alert-danger {
-  border-color: #dc3545;
+.detail-header {
+  border-bottom: 1px solid var(--steam-light-grey);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
 }
 
-.alert-success {
-  border-color: var(--steam-green);
-}
-
-/* === Responsive === */
-@media (max-width: 768px) {
-  .container {
-    padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
-}
-
-/* === Estrellas de rating === */
 .rating-stars {
   color: var(--steam-blue);
   font-size: 1.2em;
@@ -178,32 +189,17 @@ body {
   color: var(--steam-green);
 }
 
-/* === Hero de home === */
-.hero-section {
-  background: linear-gradient(135deg, var(--steam-dark) 0%, var(--steam-darker) 100%);
+.screenshot-preview {
+  background: transparent;
+  cursor: zoom-in;
 }
 
-/* === Páginas específicas === */
-.detail-header {
-  border-bottom: 1px solid var(--steam-light-grey);
-  padding-bottom: 1rem;
-  margin-bottom: 2rem;
+.screenshot-preview img {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.library-card {
-  transition: all 0.3s ease;
-}
-
-.library-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
-
-/* === Responsive === */
-@media (max-width: 768px) {
-  .container {
-    padding: 10px;
-    margin-top: 10px;
-    margin-bottom: 10px;
-  }
+.screenshot-preview:hover img,
+.screenshot-preview:focus-visible img {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+  transform: scale(1.015);
 }

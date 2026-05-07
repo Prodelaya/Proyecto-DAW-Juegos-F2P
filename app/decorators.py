@@ -20,7 +20,7 @@ def admin_required(f):
             return redirect(url_for("auth_bp.login", next=next_target))
 
         if not getattr(current_user, "is_admin", False):
-            flash("No tenés permisos para acceder a esa sección.", "error")
+            flash("No tienes permisos para acceder a esa sección.", "error")
             return redirect(url_for("main_bp.home"))
 
         return f(*args, **kwargs)

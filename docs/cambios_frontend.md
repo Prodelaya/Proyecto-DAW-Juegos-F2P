@@ -1,98 +1,83 @@
-# Cambios Implementados en el Frontend - Estética Gaming Estilo Steam
+# Cambios frontend: tema oscuro gaming y navegación privada
 
-## Resumen General
-Se ha implementado una estética gaming inspirada en Steam para el frontend de la aplicación F2P Catalog. Los cambios se realizaron siguiendo estrictamente la guía `docs/06-Guia-implementacion-frontend.md`, respetando todas las reglas: no modificar archivos Python, mantener variables Jinja, CSRF, formularios y rutas intactas. Se utilizó Bootstrap como base y se agregó CSS mínimo para el tema oscuro.
+Este documento resume los cambios visuales aplicados en la rama frontend. El objetivo es mejorar la estética de la aplicación sin alterar los contratos SSR de Flask/Jinja: rutas, formularios POST, CSRF, nombres de inputs y variables de template se mantienen.
 
-## Paleta de Colores Steam Implementada
-- **Fondo principal**: #1b2838 (azul oscuro)
-- **Fondo más oscuro**: #0e141b
-- **Azul acento**: #66c0f4
-- **Verde primario**: #4c6b22
-- **Texto claro**: #c7d5e0
-- **Texto gris**: #8f98a0
+## Resumen
 
-## Cambios por Archivo
+- Se aplicó un tema oscuro inspirado en Steam sobre Bootstrap.
+- Se añadieron accesos visibles para usuarios autenticados: perfil, biblioteca y administración cuando corresponda.
+- Se unificó el copy visible a español neutral de España.
+- Se mejoró la experiencia del botón de actualización de catálogo para evitar dudas durante una operación lenta.
+- Se revisó el CSS para reducir overrides globales y evitar pisar componentes Bootstrap de forma innecesaria.
 
-### 1. app/templates/base.html
-- **Cambio**: Modificado el `body` de `bg-body-tertiary d-flex flex-column min-vh-100` a `bg-dark text-light d-flex flex-column min-vh-100`.
-- **Motivo**: Establecer fondo oscuro global para toda la aplicación.
+## Paleta visual
 
-### 2. app/templates/partials/footer.html
-- **Cambio**: Cambiado `bg-white` a `bg-dark`, agregado `border-secondary` al footer, y cambiado el enlace a `text-light`.
-- **Motivo**: Footer consistente con el tema oscuro.
+| Uso | Color |
+|---|---|
+| Fondo principal | `#1b2838` |
+| Fondo oscuro secundario | `#0e141b` |
+| Acento azul | `#66c0f4` |
+| Acción primaria | `#4c6b22` |
+| Texto claro | `#c7d5e0` |
+| Texto gris | `#8f98a0` |
 
-### 3. app/static/css/styles.css
-- **Cambio**: Reemplazado todo el contenido de TODO con implementación completa del tema Steam:
-  - Variables CSS para colores.
-  - Estilos base para body, container, navbar, cards, badges, formularios, paginación, alertas.
-  - Hover effects, transiciones, gradientes.
-  - Responsive design.
-  - Estilos específicos para ratings, hero sections, etc.
-- **Motivo**: Implementar la paleta y estilos visuales del tema gaming.
+## Cambios principales por área
 
-### 4. app/templates/main/home.html
-- **Cambio**: 
-  - Sección hero: Cambiado a `bg-secondary border border-light rounded-3 hero-section`.
-  - Título h1: Agregado `text-light`.
-  - Card interna: Cambiado a `bg-dark`.
-- **Motivo**: Hero section con gradiente y elementos oscuros.
+### Layout base
 
-### 5. app/templates/games/detail.html
-- **Cambio**: Article de reseña propia cambiado de `bg-body-tertiary` a `bg-dark`.
-- **Motivo**: Consistencia con el tema oscuro.
+- `app/templates/base.html`
+  - Cambia el fondo global a oscuro.
+  - Añade un bloque `scripts` para que cada página pueda incluir JavaScript específico sin tocar el layout de nuevo.
 
-### 6. app/templates/auth/login.html
-- **Cambio**: 
-  - Card: Agregado `bg-dark`.
-  - Título h1: Agregado `text-light`.
-  - Card-footer: Cambiado a `bg-dark`.
-- **Motivo**: Formularios de autenticación con estética oscura.
+### Navegación
 
-### 7. app/templates/auth/register.html
-- **Cambio**: Similar a login.html - card `bg-dark`, h1 `text-light`, footer `bg-dark`.
-- **Motivo**: Consistencia en formularios de registro.
+- `app/templates/partials/navbar.html`
+  - El nombre del usuario autenticado enlaza a `/perfil`.
+  - Se añade acceso a `Mi biblioteca`.
+  - Si el usuario es administrador, se muestra `Administración`.
 
-### 8. app/templates/reviews/form.html
-- **Cambio**: Card `bg-dark`, h1 `text-light`.
-- **Motivo**: Formulario de reseñas con tema oscuro.
+### Tema visual
 
-### 9. app/templates/errors/404.html
-- **Cambio**: Card `bg-dark`, h1 `text-light`.
-- **Motivo**: Páginas de error con estética consistente.
+- `app/static/css/styles.css`
+  - Define variables de color del tema.
+  - Ajusta navbar, botones, formularios, paginación, hero y cards oscuras explícitas.
+  - Evita reglas globales peligrosas como redefinir `.container` o forzar todos los `.badge` con `!important`.
 
-### 10. app/templates/errors/500.html
-- **Cambio**: Card `bg-dark`, h1 `text-light`.
-- **Motivo**: Consistencia en páginas de error.
+### Páginas modificadas
 
-## Características del Tema Implementado
-- **Fondo oscuro global** con texto claro para mejor legibilidad.
-- **Acentos azules** para navegación y elementos interactivos.
-- **Verde para acciones primarias** (botones principales).
-- **Hover effects** en cards con elevación y sombras dinámicas.
-- **Transiciones suaves** en todos los elementos interactivos.
-- **Gradientes** en secciones hero.
-- **Responsive design** optimizado para móvil.
-- **Consistencia visual** en todas las páginas.
+- `app/templates/main/home.html`
+- `app/templates/games/catalog.html`
+- `app/templates/games/detail.html`
+- `app/templates/library/my_library.html`
+- `app/templates/profile/index.html`
+- `app/templates/admin/reviews.html`
+- `app/templates/auth/login.html`
+- `app/templates/auth/register.html`
+- `app/templates/reviews/form.html`
+- `app/templates/errors/404.html`
+- `app/templates/errors/500.html`
+- `app/templates/partials/footer.html`
 
-## Archivos No Modificados
-Los siguientes archivos mencionados en la guía no requirieron cambios específicos ya que los estilos globales aplican automáticamente:
-- catalog.html
-- profile/index.html
-- library/my_library.html
-- admin/reviews.html
-- partials/navbar.html (ya tenía bg-dark)
-- partials/flash_messages.html
-- partials/game_card.html
-- partials/pagination.html
+### Mensajes visibles del servidor
 
-## Validación
-Todos los cambios respetan:
-- Variables Jinja intactas.
-- Rutas `url_for(...)` sin modificar.
-- Formularios POST, CSRF y hidden inputs preservados.
-- Nombres de inputs y métodos sin cambios.
-- Bootstrap como base, CSS adicional mínimo.
-- No modificación de archivos Python, Docker o backend.
+También se actualizaron mensajes flash y validaciones visibles para mantener el español neutral de España. No se ha cambiado la lógica de negocio.
 
-## Fecha de Implementación
-7 de mayo de 2026
+- `app/routes/auth.py`
+- `app/routes/library.py`
+- `app/routes/reviews.py`
+- `app/routes/admin.py`
+- `app/decorators.py`
+- `app/extensions.py`
+
+## Validación funcional esperada
+
+- Las variables Jinja se mantienen.
+- Las rutas `url_for(...)` se mantienen.
+- Los formularios POST conservan CSRF.
+- Los inputs ocultos usados para redirección se conservan.
+- No se introducen llamadas API públicas nuevas.
+- La actualización de catálogo sigue usando el flujo SSR existente.
+
+## Nota sobre rendimiento del catálogo
+
+La actualización del catálogo puede tardar porque el backend consulta el listado completo de FreeToGame y después obtiene el detalle de cada juego. En esta rama solo se mejora la experiencia de espera del botón; optimizar la sincronización sería un cambio backend separado.
