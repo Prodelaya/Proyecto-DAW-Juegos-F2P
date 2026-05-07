@@ -31,3 +31,6 @@ class Config:
     ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD") or (
         "admin1234" if FLASK_ENV == "development" else None
     )
+
+    CALAYA_EMAIL = os.getenv("CALAYA_EMAIL", "pablo_laya92@hotmail.com")
+    CALAYA_PASSWORD = os.getenv("CALAYA_PASSWORD")

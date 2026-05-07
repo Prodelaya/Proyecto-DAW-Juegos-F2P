@@ -36,12 +36,14 @@ REVIEW_TEXTS = [
 
 # Distribución de ratings (más 3s y 4s, menos 1s y 5s)
 RATING_WEIGHTS = [1, 2, 3, 3, 2]  # pesos para ratings 1, 2, 3, 4, 5
+REVIEWS_PER_USER = 3
+CALAYA_REVIEW_COUNT = 15
 
 
 def seed_reviews() -> dict[str, int]:
     """Genera reseñas demo recientes e idempotentes para soportar la lectura pública."""
     demo_users = User.query.filter_by(is_admin=False).order_by(User.id.asc()).all()
-    candidate_games = Game.query.order_by(Game.release_date.desc(), Game.id.asc()).limit(24).all()
+    candidate_games = Game.query.order_by(Game.release_date.desc(), Game.id.asc()).limit(80).all()
 
     if not demo_users or not candidate_games:
         return {"processed": 0, "failed": 0}
@@ -51,10 +53,13 @@ def seed_reviews() -> dict[str, int]:
     now = datetime.utcnow()
 
     for user_index, user in enumerate(demo_users):
-        start_index = (user_index * 3) % len(candidate_games)
+        if user.username == "Calaya":
+            continue
+
+        start_index = (user_index * REVIEWS_PER_USER) % len(candidate_games)
         assigned_games = [
             candidate_games[(start_index + offset) % len(candidate_games)]
-            for offset in range(10)
+            for offset in range(REVIEWS_PER_USER)
         ]
 
         for position, game in enumerate(assigned_games):
@@ -93,6 +98,45 @@ def seed_reviews() -> dict[str, int]:
                 current_app.logger.error(
                     "No se pudo seedear la reseña user_id=%s game_id=%s: %s",
                     user.id,
+                    game.id,
+                    exc,
+                )
+
+    calaya = User.query.filter_by(username="Calaya", is_admin=False).first()
+    if calaya is not None:
+        calaya_games = candidate_games[:CALAYA_REVIEW_COUNT]
+
+        for position, game in enumerate(calaya_games):
+            rating = rng.choices([1, 2, 3, 4, 5], weights=RATING_WEIGHTS, k=1)[0]
+            text = REVIEW_TEXTS[(position * 2) % len(REVIEW_TEXTS)]
+            created_at = now - timedelta(days=position % 7, hours=(position * 2) % 24)
+
+            try:
+                review = Review.query.filter_by(user_id=calaya.id, game_id=game.id).first()
+
+                if review is None:
+                    review = Review(
+                        user_id=calaya.id,
+                        game_id=game.id,
+                        rating=rating,
+                        text=text,
+                        created_at=created_at,
+                        updated_at=created_at,
+                    )
+                    db.session.add(review)
+                else:
+                    review.rating = rating
+                    review.text = text
+                    review.created_at = created_at
+                    review.updated_at = created_at
+
+                db.session.commit()
+                summary["processed"] += 1
+            except Exception as exc:  # pragma: no cover - robustez del seed manual
+                db.session.rollback()
+                summary["failed"] += 1
+                current_app.logger.error(
+                    "No se pudo seedear la reseña de Calaya game_id=%s: %s",
                     game.id,
                     exc,
                 )

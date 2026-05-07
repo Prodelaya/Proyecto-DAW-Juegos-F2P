@@ -8,7 +8,8 @@ from app.models.library import UserLibrary, VALID_STATUSES
 from app.models.user import User
 
 
-ENTRIES_PER_USER = 6
+ENTRIES_PER_USER = 8
+CALAYA_LIBRARY_ENTRIES = 15
 
 
 def _build_status_sequence(user_index: int) -> list[str]:
@@ -29,6 +30,9 @@ def seed_library() -> dict[str, int]:
     summary = {"processed": 0, "failed": 0}
 
     for user_index, user in enumerate(demo_users):
+        if user.username == "Calaya":
+            continue
+
         start_index = (user_index * 4) % len(candidate_games)
         assigned_games = [
             candidate_games[(start_index + offset) % len(candidate_games)]
@@ -54,6 +58,34 @@ def seed_library() -> dict[str, int]:
                 current_app.logger.error(
                     "No se pudo seedear la biblioteca user_id=%s game_id=%s: %s",
                     user.id,
+                    game.id,
+                    exc,
+                )
+
+    calaya = User.query.filter_by(username="Calaya", is_admin=False).first()
+    if calaya is not None:
+        calaya_games = candidate_games[:CALAYA_LIBRARY_ENTRIES]
+        statuses = list(VALID_STATUSES)
+
+        for position, game in enumerate(calaya_games):
+            status = statuses[position % len(statuses)]
+
+            try:
+                entry = UserLibrary.query.filter_by(user_id=calaya.id, game_id=game.id).first()
+
+                if entry is None:
+                    entry = UserLibrary(user_id=calaya.id, game_id=game.id, status=status)
+                    db.session.add(entry)
+                else:
+                    entry.status = status
+
+                db.session.commit()
+                summary["processed"] += 1
+            except Exception as exc:  # pragma: no cover - robustez del seed manual
+                db.session.rollback()
+                summary["failed"] += 1
+                current_app.logger.error(
+                    "No se pudo seedear la biblioteca de Calaya game_id=%s: %s",
                     game.id,
                     exc,
                 )
