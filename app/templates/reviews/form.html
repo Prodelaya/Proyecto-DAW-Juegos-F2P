@@ -11,16 +11,16 @@
 {% block content %}
   <section class="row justify-content-center">
     <div class="col-12 col-lg-8 col-xl-7">
-      <div class="card border-0 shadow-sm">
+      <div class="card border-0 shadow-sm bg-dark">
         <div class="card-body p-4">
           <div class="mb-4">
             <p class="text-muted mb-2">Juego</p>
-            <h1 class="h3 mb-1">{{ game.title }}</h1>
+            <h1 class="h3 mb-1 text-light">{{ game.title }}</h1>
             <p class="mb-0 text-muted">
               {% if mode == 'edit' %}
-                Actualizá tu reseña manteniendo el contrato SSR explícito del formulario.
+                Actualiza tu reseña manteniendo el contrato SSR explícito del formulario.
               {% else %}
-                Gestioná tu reseña del juego.
+                Gestiona tu reseña del juego.
               {% endif %}
             </p>
           </div>
@@ -36,7 +36,7 @@
                 name="rating"
                 required
               >
-                <option value="">Seleccioná una puntuación</option>
+                <option value="">Selecciona una puntuación</option>
                 {% for value in range(1, 6) %}
                   <option
                     value="{{ value }}"

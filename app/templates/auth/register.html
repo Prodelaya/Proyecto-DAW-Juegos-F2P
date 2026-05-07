@@ -5,11 +5,11 @@
 {% block content %}
   <section class="row justify-content-center">
     <div class="col-12 col-lg-7">
-      <div class="card shadow-sm border-0">
+      <div class="card shadow-sm border-0 bg-dark">
         <div class="card-body p-4 p-md-5">
           <div class="text-center mb-4">
-            <h1 class="h3 mb-2">Creá tu cuenta</h1>
-            <p class="text-muted mb-0">Completá tus datos para crear tu cuenta.</p>
+            <h1 class="h3 mb-2 text-light">Crea tu cuenta</h1>
+            <p class="text-muted mb-0">Completa tus datos para crear tu cuenta.</p>
           </div>
 
           <form method="post" novalidate>
@@ -30,7 +30,7 @@
                   value="{{ form_data.username or '' }}"
                   required
                 >
-                <div class="form-text">Usá entre 3 y 30 caracteres: letras, números o guion bajo.</div>
+                <div class="form-text">Usa entre 3 y 30 caracteres: letras, números o guion bajo.</div>
                 {% if errors.username %}
                   <div class="invalid-feedback d-block">{{ errors.username }}</div>
                 {% endif %}
@@ -89,9 +89,9 @@
             <button class="btn btn-primary w-100 mt-4" type="submit">Crear cuenta</button>
           </form>
         </div>
-        <div class="card-footer bg-white border-0 text-center pb-4 pt-0">
-          <span class="text-muted">¿Ya tenés cuenta?</span>
-          <a href="{{ url_for('auth_bp.login') }}">Iniciá sesión</a>
+        <div class="card-footer bg-dark border-0 text-center pb-4 pt-0">
+          <span class="text-light">¿Ya tienes cuenta?</span>
+          <a href="{{ url_for('auth_bp.login') }}">Inicia sesión</a>
         </div>
       </div>
     </div>

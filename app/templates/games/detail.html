@@ -15,7 +15,7 @@
           {% if game.status %}<span class="badge text-bg-dark">{{ game.status }}</span>{% endif %}
         </div>
         <h1 class="mb-3">{{ game.title }}</h1>
-        <p class="lead text-muted">{{ game.short_description or 'Sin descripción breve disponible.' }}</p>
+        <p class="lead text-light">{{ game.short_description or 'Sin descripción breve disponible.' }}</p>
 
         <dl class="row mb-4">
           <dt class="col-sm-3">Developer</dt>
@@ -86,9 +86,50 @@
       <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
         {% for screenshot in screenshots %}
           <div class="col">
-            <img src="{{ screenshot }}" alt="Screenshot {{ loop.index }} de {{ game.title }}" class="img-fluid rounded border w-100">
+            <button
+              type="button"
+              class="screenshot-preview border-0 p-0 w-100"
+              data-bs-toggle="modal"
+              data-bs-target="#screenshotsModal"
+              data-bs-slide-to="{{ loop.index0 }}"
+              aria-label="Ampliar screenshot {{ loop.index }} de {{ game.title }}"
+            >
+              <img src="{{ screenshot }}" alt="Screenshot {{ loop.index }} de {{ game.title }}" class="img-fluid rounded border w-100">
+            </button>
           </div>
         {% endfor %}
+      </div>
+
+      <div class="modal fade" id="screenshotsModal" tabindex="-1" aria-labelledby="screenshotsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+          <div class="modal-content bg-dark border-secondary">
+            <div class="modal-header border-secondary">
+              <h3 class="modal-title h5" id="screenshotsModalLabel">Screenshots de {{ game.title }}</h3>
+              <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+              <div id="screenshotsCarousel" class="carousel slide" data-bs-ride="false">
+                <div class="carousel-inner">
+                  {% for screenshot in screenshots %}
+                    <div class="carousel-item {% if loop.first %}active{% endif %}">
+                      <img src="{{ screenshot }}" alt="Screenshot {{ loop.index }} de {{ game.title }} ampliado" class="d-block w-100">
+                    </div>
+                  {% endfor %}
+                </div>
+                {% if screenshots|length > 1 %}
+                  <button class="carousel-control-prev" type="button" data-bs-target="#screenshotsCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Anterior</span>
+                  </button>
+                  <button class="carousel-control-next" type="button" data-bs-target="#screenshotsCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Siguiente</span>
+                  </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   {% endif %}
@@ -102,7 +143,7 @@
               <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                 <div>
                   <h2 class="h4 mb-1">Tu biblioteca</h2>
-                  <p class="text-muted mb-0">Contexto privado del juego para tu cuenta.</p>
+                  <p class="text-light mb-0">Contexto privado del juego para tu cuenta.</p>
                 </div>
                 {% if library_entry %}
                   <span class="badge text-bg-success">En biblioteca</span>
@@ -141,7 +182,7 @@
                 </form>
               {% else %}
                 <p class="text-muted mb-3">
-                  Agregalo primero a tu biblioteca y después gestioná su estado desde esta misma ficha o desde <a href="{{ url_for('library_bp.my_library') }}">/mi-biblioteca</a>.
+                  Añádelo primero a tu biblioteca y después gestiona su estado desde esta misma ficha o desde <a href="{{ url_for('library_bp.my_library') }}">/mi-biblioteca</a>.
                 </p>
                 <form method="post" action="{{ url_for('library_bp.add', game_id=game.id) }}">
                   {% include 'partials/csrf_input.html' %}
@@ -158,7 +199,7 @@
               <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                 <div>
                   <h2 class="h4 mb-1">Tu reseña</h2>
-                  <p class="text-muted mb-0">Solo podés tener una reseña por juego.</p>
+                  <p class="text-muted mb-0">Solo puedes tener una reseña por juego.</p>
                 </div>
                 {% if own_review %}
                   <span class="badge text-bg-dark">{{ own_review.rating }}/5</span>
@@ -168,7 +209,7 @@
               </div>
 
               {% if own_review %}
-                <article class="border rounded p-3 bg-body-tertiary mb-3">
+                <article class="border rounded p-3 bg-dark mb-3">
                   <p class="small text-muted mb-2">
                     Actualizada el {{ own_review.updated_at.strftime('%d/%m/%Y') if own_review.updated_at else own_review.created_at.strftime('%d/%m/%Y') }}
                   </p>
@@ -189,7 +230,7 @@
                   <div class="mb-3">
                     <label class="form-label" for="rating">Valoración</label>
                     <select class="form-select{% if review_validation_errors.rating %} is-invalid{% endif %}" id="rating" name="rating" required>
-                      <option value="">Seleccioná una puntuación</option>
+                      <option value="">Selecciona una puntuación</option>
                       {% for value in range(1, 6) %}
                         <option value="{{ value }}" {% if review_form_values.rating == value|string or review_form_values.rating == value %}selected{% endif %}>{{ value }}/5</option>
                       {% endfor %}
@@ -202,7 +243,7 @@
                   <div class="mb-3">
                     <label class="form-label" for="text">Reseña</label>
                     <textarea class="form-control{% if review_validation_errors.text %} is-invalid{% endif %}" id="text" name="text" rows="5" minlength="10" maxlength="1000" required>{{ review_form_values.text or '' }}</textarea>
-                    <div class="form-text">Escribí entre 10 y 1000 caracteres.</div>
+                    <div class="form-text">Escribe entre 10 y 1000 caracteres.</div>
                     {% if review_validation_errors.text %}
                       <div class="invalid-feedback d-block">{{ review_validation_errors.text }}</div>
                     {% endif %}
@@ -222,7 +263,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center mb-3">
       <div>
         <h2 class="h3 mb-1">Reseñas de la comunidad</h2>
-        <p class="text-muted mb-0">La ficha mantiene el promedio y las reseñas públicas, incluso cuando hay sesión autenticada.</p>
+        <p class="text-light mb-0">La ficha mantiene el promedio y las reseñas públicas, incluso cuando hay sesión autenticada.</p>
       </div>
       <span class="badge text-bg-light border">{{ reviews|length }} reseñas</span>
     </div>
@@ -250,4 +291,25 @@
         </div>
       {% endif %}
   </section>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    const screenshotsModal = document.getElementById('screenshotsModal');
+    const screenshotsCarousel = document.getElementById('screenshotsCarousel');
+
+    screenshotsModal?.addEventListener('show.bs.modal', (event) => {
+      const trigger = event.relatedTarget;
+      const slideIndex = Number(trigger?.getAttribute('data-bs-slide-to') || 0);
+
+      if (screenshotsCarousel && window.bootstrap) {
+        const carousel = bootstrap.Carousel.getOrCreateInstance(screenshotsCarousel, {
+          interval: false,
+          ride: false,
+        });
+
+        carousel.to(slideIndex);
+      }
+    });
+  </script>
 {% endblock %}

@@ -78,7 +78,7 @@ def delete_review(id):
         db.session.commit()
     except SQLAlchemyError:
         db.session.rollback()
-        flash("No pudimos eliminar la reseña seleccionada. Probá nuevamente.", "error")
+        flash("No hemos podido eliminar la reseña seleccionada. Inténtalo de nuevo.", "error")
         return redirect(url_for("admin_bp.reviews"))
 
     flash(
@@ -95,7 +95,7 @@ def update_games():
     refresh_status = _build_refresh_status()
     if refresh_status["cooldown_active"]:
         flash(
-            "Todavía no podés actualizar el catálogo. Esperá "
+            "Todavía no puedes actualizar el catálogo. Espera "
             f"{refresh_status['seconds_remaining']} segundos más.",
             "error",
         )
@@ -105,7 +105,7 @@ def update_games():
         summary = seed_games()
     except Exception:
         db.session.rollback()
-        flash("No pudimos actualizar el catálogo en este momento. Probá nuevamente.", "error")
+        flash("No hemos podido actualizar el catálogo en este momento. Inténtalo de nuevo.", "error")
         return redirect(url_for("admin_bp.reviews"))
 
     processed = summary.get("processed", 0)

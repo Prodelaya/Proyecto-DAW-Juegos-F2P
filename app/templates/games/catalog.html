@@ -7,7 +7,7 @@
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-end mb-3">
       <div>
         <h1 class="mb-1">Catálogo público</h1>
-        <p class="text-muted mb-0">Buscá por título o descripción breve y combiná filtros sin salir del estado canónico de la URL.</p>
+        <p class="text-light mb-0">Busca por título o descripción breve y combina filtros sin salir del estado canónico de la URL.</p>
       </div>
       <a class="btn btn-outline-secondary" href="{{ url_for('games_bp.catalog') }}">Resetear filtros</a>
     </div>
@@ -64,7 +64,7 @@
 
   <section>
     <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center mb-3">
-      <p class="mb-0 text-muted">
+      <p class="mb-0 text-light">
         {% if has_results %}
           {{ total_count }} juego{% if total_count != 1 %}s{% endif %} encontrados.
         {% else %}
@@ -86,7 +86,7 @@
       {% include 'partials/pagination.html' %}
     {% else %}
       <div class="alert alert-secondary mb-0" role="alert">
-        No encontramos juegos con esa búsqueda o combinación de filtros. Probá ajustar los criterios o <a href="{{ url_for('games_bp.catalog') }}" class="alert-link">resetear el catálogo</a>.
+        No hemos encontrado juegos con esa búsqueda o combinación de filtros. Prueba a ajustar los criterios o <a href="{{ url_for('games_bp.catalog') }}" class="alert-link">restablecer el catálogo</a>.
       </div>
     {% endif %}
   </section>

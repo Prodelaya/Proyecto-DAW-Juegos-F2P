@@ -85,7 +85,7 @@ def create(game_id):
     )
 
     if errors:
-        flash("No pudimos publicar tu reseña. Revisá los errores marcados y volvé a intentar.", "error")
+        flash("No hemos podido publicar tu reseña. Revisa los errores marcados e inténtalo de nuevo.", "error")
         return render_template(
             "games/detail.html",
             **build_detail_context(
@@ -97,7 +97,7 @@ def create(game_id):
 
     existing_review = Review.query.filter_by(user_id=current_user.id, game_id=game.id).first()
     if existing_review is not None:
-        flash("Ya tenés una reseña para este juego. Podés editarla o eliminarla abajo.", "error")
+        flash("Ya tienes una reseña para este juego. Puedes editarla o eliminarla abajo.", "error")
         return redirect(url_for("games_bp.detail", id=game.id))
 
     review = Review(
@@ -112,11 +112,11 @@ def create(game_id):
         db.session.commit()
     except IntegrityError:
         db.session.rollback()
-        flash("Ya tenés una reseña para este juego. Podés editarla o eliminarla abajo.", "error")
+        flash("Ya tienes una reseña para este juego. Puedes editarla o eliminarla abajo.", "error")
         return redirect(url_for("games_bp.detail", id=game.id))
     except (ValueError, SQLAlchemyError):
         db.session.rollback()
-        flash("No pudimos publicar tu reseña. Probá nuevamente en unos segundos.", "error")
+        flash("No hemos podido publicar tu reseña. Inténtalo de nuevo en unos segundos.", "error")
         return redirect(url_for("games_bp.detail", id=game.id))
 
     flash("Tu reseña fue publicada correctamente.", "success")
@@ -127,7 +127,7 @@ def create(game_id):
 @login_required
 def edit(id):
     review = Review.query.get_or_404(id)
-    owner_redirect = _ensure_review_owner(review, "No podés editar una reseña ajena.")
+    owner_redirect = _ensure_review_owner(review, "No puedes editar una reseña ajena.")
     if owner_redirect is not None:
         return owner_redirect
 
@@ -142,7 +142,7 @@ def edit(id):
         request.form.get("rating"), request.form.get("text")
     )
     if validation_errors:
-        flash("No pudimos actualizar tu reseña. Revisá los errores marcados y volvé a intentar.", "error")
+        flash("No hemos podido actualizar tu reseña. Revisa los errores marcados e inténtalo de nuevo.", "error")
         return _render_review_form(review, form_values, validation_errors)
 
     try:
@@ -151,7 +151,7 @@ def edit(id):
         db.session.commit()
     except (ValueError, SQLAlchemyError):
         db.session.rollback()
-        flash("No pudimos actualizar tu reseña. Probá nuevamente en unos segundos.", "error")
+        flash("No hemos podido actualizar tu reseña. Inténtalo de nuevo en unos segundos.", "error")
         return _render_review_form(review, form_values, validation_errors)
 
     flash("Tu reseña fue actualizada correctamente.", "success")
@@ -162,7 +162,7 @@ def edit(id):
 @login_required
 def delete(id):
     review = Review.query.get_or_404(id)
-    owner_redirect = _ensure_review_owner(review, "No podés eliminar una reseña ajena.")
+    owner_redirect = _ensure_review_owner(review, "No puedes eliminar una reseña ajena.")
     if owner_redirect is not None:
         return owner_redirect
 
@@ -173,7 +173,7 @@ def delete(id):
         db.session.commit()
     except SQLAlchemyError:
         db.session.rollback()
-        flash("No pudimos eliminar tu reseña. Probá nuevamente en unos segundos.", "error")
+        flash("No hemos podido eliminar tu reseña. Inténtalo de nuevo en unos segundos.", "error")
         return redirect(url_for("games_bp.detail", id=game_id))
 
     flash("Tu reseña fue eliminada correctamente.", "success")
