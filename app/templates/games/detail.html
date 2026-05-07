@@ -15,7 +15,7 @@
           {% if game.status %}<span class="badge text-bg-dark">{{ game.status }}</span>{% endif %}
         </div>
         <h1 class="mb-3">{{ game.title }}</h1>
-        <p class="lead text-muted">{{ game.short_description or 'Sin descripción breve disponible.' }}</p>
+        <p class="lead text-light">{{ game.short_description or 'Sin descripción breve disponible.' }}</p>
 
         <dl class="row mb-4">
           <dt class="col-sm-3">Developer</dt>
@@ -102,7 +102,7 @@
               <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
                 <div>
                   <h2 class="h4 mb-1">Tu biblioteca</h2>
-                  <p class="text-muted mb-0">Contexto privado del juego para tu cuenta.</p>
+                  <p class="text-light mb-0">Contexto privado del juego para tu cuenta.</p>
                 </div>
                 {% if library_entry %}
                   <span class="badge text-bg-success">En biblioteca</span>
@@ -168,7 +168,7 @@
               </div>
 
               {% if own_review %}
-                <article class="border rounded p-3 bg-body-tertiary mb-3">
+                <article class="border rounded p-3 bg-dark mb-3">
                   <p class="small text-muted mb-2">
                     Actualizada el {{ own_review.updated_at.strftime('%d/%m/%Y') if own_review.updated_at else own_review.created_at.strftime('%d/%m/%Y') }}
                   </p>
@@ -222,7 +222,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between gap-2 align-items-md-center mb-3">
       <div>
         <h2 class="h3 mb-1">Reseñas de la comunidad</h2>
-        <p class="text-muted mb-0">La ficha mantiene el promedio y las reseñas públicas, incluso cuando hay sesión autenticada.</p>
+        <p class="text-light mb-0">La ficha mantiene el promedio y las reseñas públicas, incluso cuando hay sesión autenticada.</p>
       </div>
       <span class="badge text-bg-light border">{{ reviews|length }} reseñas</span>
     </div>

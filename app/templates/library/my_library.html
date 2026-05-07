@@ -6,9 +6,9 @@
   <section class="mb-4">
     <div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-end">
       <div>
-        <p class="text-muted mb-2">Área privada</p>
+        <p class="text-light mb-2">Área privada</p>
         <h1 class="h2 mb-1">Mi biblioteca</h1>
-        <p class="text-muted mb-0">Gestioná tus juegos guardados con un filtro simple por estado.</p>
+        <p class="text-light mb-0">Gestioná tus juegos guardados con un filtro simple por estado.</p>
       </div>
       <a class="btn btn-outline-primary" href="{{ url_for('games_bp.catalog') }}">Explorar catálogo</a>
     </div>
@@ -60,7 +60,7 @@
                   </div>
 
                   <h2 class="h4 mb-2">{{ entry.game.title }}</h2>
-                  <p class="text-muted small mb-3">
+                  <p class="text-light small mb-3">
                     Agregado el {{ entry.created_at.strftime('%d/%m/%Y') if entry.created_at else 'sin fecha disponible' }}
                   </p>
                   <p class="flex-grow-1 mb-3">{{ entry.game.short_description or 'Sin descripción breve disponible.' }}</p>
@@ -115,7 +115,7 @@
                           name="next"
                           value="{% if current_status %}{{ url_for('library_bp.my_library', status=current_status) }}{% else %}{{ url_for('library_bp.my_library') }}{% endif %}"
                         >
-                        <button class="btn btn-outline-danger align-self-end" type="submit">Quitar de biblioteca</button>
+                        <button class="btn btn-outline-danger align-self-end" type="submit">Quitar de la biblioteca</button>
                       </form>
                     </div>
                   </div>
@@ -130,7 +130,7 @@
     <section>
       <div class="alert alert-secondary mb-0" role="alert">
         {% if current_status %}
-          No tenés juegos en el estado
+          No tienes juegos en el estado
           <strong>
             {% if current_status == 'want_to_play' %}
               Quiero jugar
@@ -140,9 +140,9 @@
               Jugado
             {% endif %}
           </strong>.
-          Probá con otro filtro o agregá nuevos juegos desde el catálogo.
+          Prueba con otro filtro o agrega nuevos juegos desde el catálogo.
         {% else %}
-          Tu biblioteca todavía está vacía. Agregá juegos desde el catálogo para empezar a organizarla.
+          Tu biblioteca todavía está vacía. Agrega juegos desde el catálogo para empezar a organizarla.
         {% endif %}
       </div>
     </section>

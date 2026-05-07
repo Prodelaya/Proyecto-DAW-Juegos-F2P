@@ -3,21 +3,21 @@
 {% block title %}Inicio | F2P Catalog{% endblock %}
 
 {% block content %}
-  <section class="p-4 p-md-5 mb-4 bg-white border rounded-3">
+  <section class="p-4 p-md-5 mb-4 bg-secondary border border-light rounded-3 hero-section">
     <div class="row g-4 align-items-center">
       <div class="col-lg-8">
-        <span class="badge text-bg-dark mb-3">Lectura pública SSR</span>
-        <h1 class="display-6 fw-bold mb-3">Descubrí juegos free-to-play desde el catálogo local</h1>
-        <p class="lead text-muted mb-4">
-          Explorá destacados, filtrá por género o plataforma y revisá la ficha completa de cada juego sin depender de llamadas en tiempo real a la API externa.
+        <span class="badge text-bg-primary mb-3">Lectura pública SSR</span>
+        <h1 class="display-6 fw-bold mb-3 text-light">Descubrí juegos free-to-play desde el catálogo local</h1>
+        <p class="lead text-light mb-4">
+          Explora destacados, filtra por género o plataforma y revisa la ficha completa de cada juego sin depender de llamadas en tiempo real a la API externa.
         </p>
         <a class="btn btn-primary btn-lg" href="{{ catalog_url }}">Ver catálogo completo</a>
       </div>
       <div class="col-lg-4">
-        <div class="card border-0 bg-body-tertiary h-100">
+        <div class="card border-0 bg-dark h-100">
           <div class="card-body">
-            <h2 class="h5">Qué vas a encontrar</h2>
-            <ul class="mb-0 ps-3 text-muted">
+            <h2 class="h5 text-light">Qué vas a encontrar</h2>
+            <ul class="mb-0 ps-3 text-light">
               <li>8 juegos destacados según reseñas recientes</li>
               <li>Catálogo con filtros canónicos en URL</li>
               <li>Ficha pública con métricas y reseñas read-only</li>
@@ -32,7 +32,7 @@
     <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
       <div>
         <h2 class="h3 mb-1">Destacados de la comunidad</h2>
-        <p class="text-muted mb-0">Ranking híbrido basado en volumen y promedio de reseñas de los últimos 14 días.</p>
+        <p class="text-light mb-0">Ranking híbrido basado en volumen y promedio de reseñas de los últimos 14 días.</p>
       </div>
       <a class="btn btn-outline-secondary" href="{{ catalog_url }}">Explorar todo el catálogo</a>
     </div>

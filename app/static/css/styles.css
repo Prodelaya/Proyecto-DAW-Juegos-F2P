@@ -1,33 +1,209 @@
-/* TODO: Implementar estilos personalizados — tema oscuro/gaming */
-/* Complementa Bootstrap. Paleta de colores, cards, estrellas de rating, badges, etc. */
-/* Ver: docs/04-Roadmap-frontend.md (Fase F1) */
+/* Tema Gaming Estilo Steam */
+/* Paleta de colores inspirada en Steam */
 
-/* === Variables de colores === */
-/* TODO: Definir paleta de colores del tema gaming/oscuro */
+:root {
+  --steam-dark: #1b2838;
+  --steam-darker: #0e141b;
+  --steam-blue: #66c0f4;
+  --steam-green: #4c6b22;
+  --steam-grey: #c7d5e0;
+  --steam-light-grey: #8f98a0;
+}
 
 /* === Estilos base === */
-/* TODO: Fuentes, background, colores de texto */
+body {
+  background-color: var(--steam-dark) !important;
+  color: var(--steam-grey);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.container {
+  background-color: var(--steam-darker);
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
 
 /* === Navbar === */
-/* TODO: Ajustes sobre navbar Bootstrap */
+.navbar {
+  background-color: var(--steam-darker) !important;
+  border-bottom: 1px solid var(--steam-blue);
+}
+
+.navbar-brand {
+  color: var(--steam-blue) !important;
+  font-weight: bold;
+}
+
+.nav-link {
+  color: var(--steam-grey) !important;
+}
+
+.nav-link:hover {
+  color: var(--steam-blue) !important;
+}
+
+.btn-outline-light {
+  border-color: var(--steam-blue);
+  color: var(--steam-blue);
+}
+
+.btn-outline-light:hover {
+  background-color: var(--steam-blue);
+  border-color: var(--steam-blue);
+  color: var(--steam-darker);
+}
+
+.btn-primary {
+  background-color: var(--steam-green);
+  border-color: var(--steam-green);
+}
+
+.btn-primary:hover {
+  background-color: #5a8f2a;
+  border-color: #5a8f2a;
+}
 
 /* === Game Cards === */
-/* TODO: Hover effects, sombras, transiciones */
+.card {
+  background-color: var(--steam-dark);
+  border: 1px solid var(--steam-light-grey);
+  color: var(--steam-grey);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
 
-/* === Badges de género y plataforma === */
-/* TODO: Colores por categoría */
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+}
 
-/* === Estrellas de rating === */
-/* TODO: Estilo visual de puntuaciones */
+.card-img-top {
+  border-bottom: 1px solid var(--steam-light-grey);
+}
+
+.card-title {
+  color: var(--steam-blue);
+}
+
+.btn-outline-primary {
+  border-color: var(--steam-blue);
+  color: var(--steam-blue);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--steam-blue);
+  border-color: var(--steam-blue);
+  color: var(--steam-darker);
+}
+
+/* === Badges === */
+.badge {
+  background-color: var(--steam-blue) !important;
+}
+
+.badge.text-bg-secondary {
+  background-color: var(--steam-light-grey) !important;
+  color: var(--steam-darker) !important;
+}
 
 /* === Formularios === */
-/* TODO: Estilo de inputs, selects, botones */
+.form-control, .form-select {
+  background-color: var(--steam-dark);
+  border: 1px solid var(--steam-light-grey);
+  color: var(--steam-grey);
+}
+
+.form-control:focus, .form-select:focus {
+  background-color: var(--steam-dark);
+  border-color: var(--steam-blue);
+  color: var(--steam-grey);
+  box-shadow: 0 0 0 0.2rem rgba(102, 192, 244, 0.25);
+}
+
+.btn {
+  transition: all 0.2s;
+}
 
 /* === Paginación === */
-/* TODO: Ajustes sobre paginación Bootstrap */
+.page-link {
+  background-color: var(--steam-dark);
+  border-color: var(--steam-light-grey);
+  color: var(--steam-grey);
+}
 
-/* === Páginas específicas === */
-/* TODO: Hero de home, ficha de juego, perfil, panel admin */
+.page-link:hover {
+  background-color: var(--steam-blue);
+  border-color: var(--steam-blue);
+  color: var(--steam-darker);
+}
+
+.page-item.active .page-link {
+  background-color: var(--steam-blue);
+  border-color: var(--steam-blue);
+}
+
+/* === Alertas === */
+.alert {
+  background-color: var(--steam-darker);
+  border: 1px solid var(--steam-light-grey);
+  color: var(--steam-grey);
+}
+
+.alert-danger {
+  border-color: #dc3545;
+}
+
+.alert-success {
+  border-color: var(--steam-green);
+}
 
 /* === Responsive === */
-/* TODO: Media queries para móvil (cards a 1 columna, etc.) */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}
+
+/* === Estrellas de rating === */
+.rating-stars {
+  color: var(--steam-blue);
+  font-size: 1.2em;
+}
+
+.rating-stars .filled {
+  color: var(--steam-green);
+}
+
+/* === Hero de home === */
+.hero-section {
+  background: linear-gradient(135deg, var(--steam-dark) 0%, var(--steam-darker) 100%);
+}
+
+/* === Páginas específicas === */
+.detail-header {
+  border-bottom: 1px solid var(--steam-light-grey);
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+
+.library-card {
+  transition: all 0.3s ease;
+}
+
+.library-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+/* === Responsive === */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+}

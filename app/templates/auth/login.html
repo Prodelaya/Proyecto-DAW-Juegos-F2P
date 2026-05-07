@@ -5,11 +5,11 @@
 {% block content %}
   <section class="row justify-content-center">
     <div class="col-12 col-md-8 col-lg-5">
-      <div class="card shadow-sm border-0">
+      <div class="card shadow-sm border-0 bg-dark">
         <div class="card-body p-4">
           <div class="text-center mb-4">
-            <h1 class="h3 mb-2">Iniciá sesión</h1>
-            <p class="text-muted mb-0">Accedé con tu email para continuar usando tu cuenta.</p>
+            <h1 class="h3 mb-2 text-light">Iniciar sesión</h1>
+            <p class="text-muted mb-0">Accede con tu email para continuar usando tu cuenta.</p>
           </div>
 
           {% if general_error %}
@@ -56,8 +56,8 @@
             <button class="btn btn-primary w-100" type="submit">Ingresar</button>
           </form>
         </div>
-        <div class="card-footer bg-white border-0 text-center pb-4 pt-0">
-          <span class="text-muted">¿No tenés cuenta?</span>
+        <div class="card-footer bg-dark border-0 text-center pb-4 pt-0">
+          <span class="text-light">¿No tenés cuenta?</span>
           <a href="{{ url_for('auth_bp.register') }}">Creala desde registro</a>
         </div>
       </div>
