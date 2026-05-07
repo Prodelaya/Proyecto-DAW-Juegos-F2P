@@ -18,7 +18,7 @@
           <h2 class="h6 mb-2">Actualizar catálogo</h2>
           {% if refresh_status.last_cached_at %}
             <p class="small text-muted mb-2">
-              Último cacheo: {{ refresh_status.last_cached_at.strftime('%d/%m/%Y %H:%M:%S') }} UTC.
+              Último cacheo: {{ refresh_status.last_cached_at|madrid_datetime('%d/%m/%Y %H:%M:%S') }} hora de Madrid.
             </p>
           {% else %}
             <p class="small text-muted mb-2">
@@ -85,7 +85,7 @@
                 <td><span class="badge text-bg-dark">{{ review.rating }}/5</span></td>
                 <td>
                   {% set reference_date = review.updated_at or review.created_at %}
-                  {{ reference_date.strftime('%d/%m/%Y %H:%M') if reference_date else 'Sin fecha' }}
+                  {{ reference_date|madrid_datetime('%d/%m/%Y %H:%M') if reference_date else 'Sin fecha' }}
                 </td>
                 <td>
                   <div style="max-width: 420px;">

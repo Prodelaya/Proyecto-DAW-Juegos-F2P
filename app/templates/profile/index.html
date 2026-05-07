@@ -13,7 +13,7 @@
 
           <dl class="row mb-0">
             <dt class="col-sm-5">Miembro desde</dt>
-            <dd class="col-sm-7">{{ user.created_at.strftime('%d/%m/%Y') if user.created_at else 'No disponible' }}</dd>
+            <dd class="col-sm-7">{{ user.created_at|madrid_datetime('%d/%m/%Y') if user.created_at else 'No disponible' }}</dd>
             <dt class="col-sm-5">Rol</dt>
             <dd class="col-sm-7">{{ 'Administrador' if user.is_admin else 'Usuario' }}</dd>
           </dl>
@@ -73,7 +73,7 @@
                 <div>
                   <h3 class="h5 mb-1">{{ review.game.title if review.game else 'Juego no disponible' }}</h3>
                   <p class="small text-muted mb-0">
-                    Actualizada el {{ review.updated_at.strftime('%d/%m/%Y') if review.updated_at else review.created_at.strftime('%d/%m/%Y') }}
+                    Actualizada el {{ (review.updated_at or review.created_at)|madrid_datetime('%d/%m/%Y') }}
                   </p>
                 </div>
                 <span class="badge text-bg-dark align-self-start">{{ review.rating }}/5</span>

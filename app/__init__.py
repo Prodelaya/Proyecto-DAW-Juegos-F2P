@@ -1,4 +1,6 @@
 from pathlib import Path
+from datetime import timezone
+from zoneinfo import ZoneInfo
 from urllib.parse import urljoin, urlsplit
 
 from flask import Flask, flash, redirect, render_template, request, url_for
@@ -7,6 +9,9 @@ from flask_wtf.csrf import CSRFError
 from app.config import Config
 from app.extensions import bcrypt, csrf, db, login_manager
 from app.routes import register_routes
+
+
+MADRID_TIMEZONE = ZoneInfo("Europe/Madrid")
 
 
 def _is_safe_local_url(target: str | None) -> bool:
@@ -37,6 +42,14 @@ def _resolve_safe_redirect_target() -> str:
     return resolved_target
 
 
+def format_madrid_datetime(value, date_format: str = "%d/%m/%Y %H:%M") -> str:
+    if value is None:
+        return ""
+
+    utc_value = value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value.astimezone(timezone.utc)
+    return utc_value.astimezone(MADRID_TIMEZONE).strftime(date_format)
+
+
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_object(Config)
@@ -47,6 +60,8 @@ def create_app():
     login_manager.init_app(app)
     bcrypt.init_app(app)
     csrf.init_app(app)
+
+    app.jinja_env.filters["madrid_datetime"] = format_madrid_datetime
 
     import app.models as models  # noqa: F401
 
@@ -66,7 +81,7 @@ def create_app():
     @app.errorhandler(CSRFError)
     def handle_csrf_error(error):
         flash(
-            "Tu sesión del formulario expiró o la solicitud no era válida. Volvé a intentarlo.",
+            "Tu sesión del formulario ha expirado o la solicitud no era válida. Inténtalo de nuevo.",
             "error",
         )
         return redirect(_resolve_safe_redirect_target())

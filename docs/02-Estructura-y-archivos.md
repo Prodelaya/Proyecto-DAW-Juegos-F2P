@@ -144,6 +144,8 @@ f2p-catalog/
 
 Cada archivo define una tabla de la BD. Todos importan `db` de `extensions.py`.
 
+> **Fechas:** la base de datos conserva los timestamps en UTC. Las plantillas los muestran en hora de Madrid mediante el filtro Jinja `madrid_datetime`.
+
 #### models/__init__.py
 - **Qué contiene:** Importa todos los modelos para que Flask los descubra al crear las tablas.
 - **Para qué sirve:** Que al hacer `from app.models import User, Game, Review, UserLibrary` funcione.
@@ -225,7 +227,7 @@ Cada archivo es un Blueprint de Flask que agrupa rutas relacionadas. Todos se re
 - **Qué contiene:** Blueprint `admin_bp`. Rutas (todas con `@login_required` + `@admin_required`):
   - GET `/admin/resenas`: lista todas las reseñas de la plataforma, ordenadas por fecha (más recientes primero). Cada reseña muestra: usuario, juego, rating, texto, fecha, botón eliminar. Renderiza `admin/reviews.html` pasando: reviews.
   - POST `/admin/resenas/<int:id>/eliminar`: elimina cualquier reseña. Redirige a `/admin/resenas` con flash de confirmación.
-  - POST `/admin/actualizar-juegos`: re-ejecuta el seed de juegos (llama a la función de seed_games.py). Actualiza el catálogo con los últimos datos de la API FreeToGame, actualizando el campo `cached_at`. **Rate-limit: 30 segundos entre ejecuciones** (se verifica `cached_at` en servidor; botón con cuenta atrás en cliente). Redirige al panel admin con flash de confirmación.
+  - POST `/admin/actualizar-juegos`: re-ejecuta el seed de juegos (llama a la función de seed_games.py). Revisa el catálogo contra la API FreeToGame, crea juegos nuevos, actualiza los que cambian y deja sin tocar los que no presentan cambios. **Rate-limit: 30 segundos entre ejecuciones** (se verifica `cached_at` en servidor; botón con cuenta atrás en cliente). Redirige al panel admin con flash de resumen.
 - **Para qué sirve:** Moderación de contenido (eliminar reseñas inapropiadas, spam) y mantenimiento de datos (actualización manual del catálogo de juegos).
 - **Depende de:** `models/review.py`, `decorators.py` (@admin_required), `seeds/seed_games.py` (para la actualización del catálogo).
 
@@ -237,7 +239,7 @@ Cada archivo es un Blueprint de Flask que agrupa rutas relacionadas. Todos se re
 - **Qué es:** Módulo Python que encapsula las llamadas HTTP a la API FreeToGame.
 - **Qué contiene:** Funciones:
   - `fetch_all_games()`: llama a `GET /api/games`, devuelve lista de diccionarios con los campos básicos de cada juego (id, title, thumbnail, genre, platform, short_description, developer, publisher, release_date, game_url, freetogame_profile_url).
-  - `fetch_game_detail(api_id)`: llama a `GET /api/game?id=<api_id>`, devuelve diccionario con datos extendidos (status, description larga, screenshots, minimum_system_requirements). **Se llama para cada juego durante el seed** para obtener toda la información detallada.
+  - `fetch_game_detail(api_id)`: llama a `GET /api/game?id=<api_id>`, devuelve diccionario con datos extendidos (status, description larga, screenshots, minimum_system_requirements). Se llama para juegos nuevos, juegos con cambios básicos o juegos cuyo detalle local está incompleto.
   - Manejo de errores: timeout, API caída, respuesta inesperada. Cada función devuelve None o lista vacía en caso de error, nunca rompe la app. Incluye `time.sleep()` entre llamadas para respetar el rate-limit de 10 req/s de la API.
 - **Para qué sirve:** Aislar la comunicación con la API externa. Solo el seed llama a este servicio.
 - **Depende de:** La librería `requests` y la URL de la API (de `config.py`).
@@ -256,14 +258,15 @@ Los scripts de seed llenan la BD con datos iniciales. Se ejecutan una vez tras l
 
 #### seeds/seed_games.py — Cachear juegos de la API
 - **Qué contiene:** Función que:
-  1. Llama a `fetch_all_games()` → obtiene lista básica de ~400 juegos
-  2. Por cada juego, llama a `fetch_game_detail(api_id)` → obtiene description, screenshots, requisitos del sistema, status
-  3. Hace INSERT si no existe (por api_id) o UPDATE si ya existe
-  4. Guarda los screenshots como JSON (lista de URLs), los requisitos como campos separados
-  5. Actualiza `cached_at` con la fecha actual
-  6. Respeta rate-limit de la API con `time.sleep(0.15)` entre llamadas (~7 req/s)
-  7. Imprime progreso: "Juego 42/400: Overwatch..."
-- **Tiempo estimado:** ~60-90 segundos para los ~400 juegos (por el rate-limit)
+  1. Llama siempre a `fetch_all_games()` → obtiene la lista básica actual de juegos y permite detectar altas nuevas.
+  2. Busca cada juego localmente por `api_id`.
+  3. Si el juego es nuevo, llama a `fetch_game_detail(api_id)` y lo crea.
+  4. Si el juego existe, compara campos básicos; si no cambió nada y el detalle local está completo, lo cuenta como `sin cambios` sin llamar al detalle ni hacer commit.
+  5. Si el juego existe pero cambió o tiene detalle incompleto, llama a `fetch_game_detail(api_id)` y actualiza solo entonces.
+  6. Guarda screenshots como JSON y requisitos como campos separados cuando hay detalle disponible.
+  7. Actualiza `cached_at` solo en juegos creados o actualizados.
+  8. Respeta rate-limit de la API con `time.sleep(0.15)` solo cuando llama al endpoint de detalle.
+- **Tiempo estimado:** variable. La primera carga o una recarga con muchos cambios puede tardar alrededor de 60-90 segundos; una revisión con catálogo ya caliente debería ser bastante más rápida.
 - **Para qué sirve:** Llenar la tabla `games` con TODA la información de cada juego. Reutilizada por la ruta `POST /admin/actualizar-juegos`.
 - **Depende de:** `services/freetogame.py`, `models/game.py`.
 
@@ -330,7 +333,7 @@ Todos los templates usan herencia de Jinja2: extienden `base.html` e incluyen lo
 #### games/detail.html
 - **Qué contiene:** Extiende base.html. Es la plantilla más compleja:
   - Zona superior: thumbnail como imagen de portada grande, título del juego.
-  - Zona de información: tabla/grid con developer, publisher, release_date, género, plataformas, status, enlace "Jugar" a la web oficial. Fecha `cached_at` entre paréntesis como "(Actualizado por admin: DD/MM/YYYY)".
+  - Zona de información: tabla/grid con developer, publisher, release_date, género, plataformas, status, enlace "Jugar" a la web oficial. Fecha `cached_at` mostrada en hora de Madrid.
   - Descripción larga (texto completo de la API).
   - Requisitos del sistema: tabla con OS, procesador, memoria, gráficos, almacenamiento (si disponibles, no todos los juegos los tienen).
   - Galería de screenshots: las imágenes del juego en grid o carrusel.

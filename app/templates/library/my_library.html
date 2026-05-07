@@ -61,7 +61,7 @@
 
                   <h2 class="h4 mb-2">{{ entry.game.title }}</h2>
                   <p class="text-light small mb-3">
-                    Agregado el {{ entry.created_at.strftime('%d/%m/%Y') if entry.created_at else 'sin fecha disponible' }}
+                    Agregado el {{ entry.created_at|madrid_datetime('%d/%m/%Y') if entry.created_at else 'sin fecha disponible' }}
                   </p>
                   <p class="flex-grow-1 mb-3">{{ entry.game.short_description or 'Sin descripción breve disponible.' }}</p>
 

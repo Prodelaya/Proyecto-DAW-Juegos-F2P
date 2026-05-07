@@ -32,7 +32,7 @@
             {% endif %}
           </dd>
           <dt class="col-sm-3">Actualizado</dt>
-          <dd class="col-sm-9">{{ game.cached_at.strftime('%d/%m/%Y %H:%M') if game.cached_at else 'No disponible' }}</dd>
+          <dd class="col-sm-9">{{ game.cached_at|madrid_datetime('%d/%m/%Y %H:%M') if game.cached_at else 'No disponible' }}</dd>
         </dl>
 
         {% if game.game_url %}
@@ -211,7 +211,7 @@
               {% if own_review %}
                 <article class="border rounded p-3 bg-dark mb-3">
                   <p class="small text-muted mb-2">
-                    Actualizada el {{ own_review.updated_at.strftime('%d/%m/%Y') if own_review.updated_at else own_review.created_at.strftime('%d/%m/%Y') }}
+                    Actualizada el {{ (own_review.updated_at or own_review.created_at)|madrid_datetime('%d/%m/%Y') }}
                   </p>
                   <p class="mb-0">{{ own_review.text }}</p>
                 </article>
@@ -276,9 +276,20 @@
               <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-2">
                 <div>
                   <h3 class="h6 mb-1">{{ review.user.username }}</h3>
-                  <p class="small text-muted mb-0">{{ review.created_at.strftime('%d/%m/%Y') }}</p>
+                  <p class="small text-muted mb-0">{{ review.created_at|madrid_datetime('%d/%m/%Y') }}</p>
                 </div>
-                <span class="badge text-bg-dark align-self-start">{{ review.rating }}/5</span>
+                <div class="d-flex align-items-start gap-2">
+                  <span class="badge text-bg-dark align-self-start">{{ review.rating }}/5</span>
+                  {% if current_user.is_authenticated and current_user.is_admin %}
+                    <form method="post" action="{{ url_for('admin_bp.delete_review', id=review.id) }}">
+                      {% include 'partials/csrf_input.html' %}
+                      <input type="hidden" name="next" value="{{ url_for('games_bp.detail', id=game.id) }}">
+                      <button class="review-delete-button" type="submit" title="Eliminar reseña" aria-label="Eliminar reseña de {{ review.user.username }}">
+                        🗑️
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
               </div>
               <p class="mb-0">{{ review.text }}</p>
             </div>

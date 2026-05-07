@@ -128,6 +128,21 @@ main .alert-warning {
   color: var(--steam-grey);
 }
 
+main .table {
+  --bs-table-bg: var(--steam-darker);
+  --bs-table-color: var(--steam-grey);
+  --bs-table-border-color: rgba(102, 192, 244, 0.2);
+  --bs-table-striped-bg: rgba(102, 192, 244, 0.08);
+  --bs-table-striped-color: var(--steam-grey);
+  --bs-table-hover-bg: rgba(102, 192, 244, 0.14);
+  --bs-table-hover-color: #fff;
+}
+
+main .table thead th {
+  color: #fff;
+  border-bottom-color: rgba(102, 192, 244, 0.35);
+}
+
 /* === Formularios === */
 .form-control,
 .form-select {
@@ -202,4 +217,19 @@ main .alert-warning {
 .screenshot-preview:focus-visible img {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
   transform: scale(1.015);
+}
+
+.review-delete-button {
+  background: transparent;
+  border: 0;
+  color: #dc3545;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0.25rem 0.45rem;
+}
+
+.review-delete-button:hover,
+.review-delete-button:focus-visible {
+  color: #ff6b7a;
+  transform: scale(1.08);
 }
