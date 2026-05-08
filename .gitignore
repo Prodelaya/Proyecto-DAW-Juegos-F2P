@@ -32,3 +32,5 @@ node_modules/
 # Agent registry artifacts
 .atl/
 skills/
+AGENTS.md
+CLAUDE.md
